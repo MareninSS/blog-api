@@ -2,7 +2,6 @@ package com.mareninss.blogapi.dto;
 
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.User;
-import java.util.Date;
 
 public class DtoMapper {
 
@@ -40,7 +39,7 @@ public class DtoMapper {
 
     postDto.setId(post.getId());
     postDto.setTimestamp(post.getTime().getTime());
-    postDto.setUserPostDto(userPostDto);
+    postDto.setUser(userPostDto);
     postDto.setTitle(post.getTitle());
     postDto.setTitle(post.getTitle());
     postDto.setAnnounce(getAnnounce(post.getText()));

@@ -1,7 +1,6 @@
 package com.mareninss.blogapi.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +12,7 @@ public class PostDto {
 
   private long timestamp;
 
-  @JsonProperty("user")
-  private UserPostDto userPostDto;
+  private UserPostDto user;
 
   private String title;
 
