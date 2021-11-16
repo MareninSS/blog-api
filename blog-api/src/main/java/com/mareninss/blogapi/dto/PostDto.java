@@ -1,6 +1,5 @@
 package com.mareninss.blogapi.dto;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +24,5 @@ public class PostDto {
   private Integer commentCount;
 
   private Integer viewCount;
-
 
 }

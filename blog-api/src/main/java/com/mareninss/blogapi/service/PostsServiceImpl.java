@@ -11,11 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
-import org.springframework.util.comparator.Comparators;
+
 
 @Service
 public class PostsServiceImpl implements PostsService {
@@ -23,37 +20,35 @@ public class PostsServiceImpl implements PostsService {
   private final Byte IS_ACTIVE = 1;
   private final ModerationStatusEnum MODERATION_STATUS = ModerationStatusEnum.ACCEPTED;
   private final long CURRENT_TIME = new Date().getTime();
-
+  private final PostsResponse postsResponse = new PostsResponse();
 
   @Autowired
   private PostRepository postRepository;
 
   @Override
   public PostsResponse getPosts(int offset, int limit, String mode) {
-    PostsResponse postsResponse = new PostsResponse();
 
     Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp);
     Comparator<PostDto> popularMode = Comparator.comparing(PostDto::getCommentCount);
     Comparator<PostDto> bestMode = Comparator.comparing(PostDto::getLikeCount);
     Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp).reversed();
-
     switch (mode) {
       case "recent":
-        getPostsWithModeOffsetLimit(offset, limit, recentMode, postsResponse);
+        return getPostsWithModeOffsetLimit(offset, limit, recentMode);
       case "popular":
-        getPostsWithModeOffsetLimit(offset, limit, popularMode, postsResponse);
+        return getPostsWithModeOffsetLimit(offset, limit, popularMode);
       case "best":
-        getPostsWithModeOffsetLimit(offset, limit, bestMode, postsResponse);
+        return getPostsWithModeOffsetLimit(offset, limit, bestMode);
       case "early":
-        getPostsWithModeOffsetLimit(offset, limit, earlyMode, postsResponse);
+        return getPostsWithModeOffsetLimit(offset, limit, earlyMode);
     }
     return postsResponse;
   }
 
 
   public PostsResponse getPostsWithModeOffsetLimit(int offset, int limit,
-      Comparator<PostDto> comparator, PostsResponse postsResponse) {
-    int count = postRepository.getAllByIsActiveAndModerationStatus(IS_ACTIVE, MODERATION_STATUS)
+      Comparator<PostDto> comparator) {
+        int count = postRepository.getAllByIsActiveAndModerationStatus(IS_ACTIVE, MODERATION_STATUS)
         .size();
     List<PostDto> postsDto = postRepository
         .getAllByIsActiveAndModerationStatus(
