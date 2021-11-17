@@ -1,9 +1,13 @@
 package com.mareninss.blogapi.dto;
 
+import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.entity.Post;
+import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
 
 public class DtoMapper {
+
+  private PostsResponse postsResponse;
 
   public static UserDto mapToUserDto(User user) {
     return null;
@@ -30,7 +34,8 @@ public class DtoMapper {
         .count();
 
     long commentCount = post.getPostComments().stream()
-        .filter(postComment -> postComment.getPostId().equals(post.getId())).count();
+        .filter(postComment -> postComment.getPostId().equals(post.getId()))
+        .count();
 
     PostDto postDto = new PostDto();
     UserPostDto userPostDto = new UserPostDto();
@@ -57,5 +62,13 @@ public class DtoMapper {
     } else {
       return text.substring(0, 150) + "...";
     }
+  }
+
+  public static TagDto mapToTagDto(Tag tag, double weightTag) {
+    TagDto tagDto = new TagDto();
+    tagDto.setName(tag.getName());
+    tagDto.setWeight(weightTag);
+
+    return tagDto;
   }
 }

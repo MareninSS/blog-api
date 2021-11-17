@@ -4,6 +4,6 @@ import com.mareninss.blogapi.api.response.TagResponse;
 
 public interface TagService {
 
-  public TagResponse getTags();
+  public TagResponse getTags(String query);
 
 }

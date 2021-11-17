@@ -10,28 +10,34 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 
 @Service
 public class PostsServiceImpl implements PostsService {
 
-  private final Byte IS_ACTIVE = 1;
-  private final ModerationStatusEnum MODERATION_STATUS = ModerationStatusEnum.ACCEPTED;
-  private final long CURRENT_TIME = new Date().getTime();
-  private final PostsResponse postsResponse = new PostsResponse();
-
   @Autowired
   private PostRepository postRepository;
+
+  private final Byte IS_ACTIVE;
+  private final ModerationStatusEnum MODERATION_STATUS;
+  private final Date CURRENT_TIME;
+  private final PostsResponse postsResponse;
+
+  public PostsServiceImpl() {
+    IS_ACTIVE = 1;
+    CURRENT_TIME = new Date();
+    postsResponse = new PostsResponse();
+    MODERATION_STATUS = ModerationStatusEnum.ACCEPTED;
+  }
 
   @Override
   public PostsResponse getPosts(int offset, int limit, String mode) {
 
-    Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp);
+    Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
     Comparator<PostDto> popularMode = Comparator.comparing(PostDto::getCommentCount);
     Comparator<PostDto> bestMode = Comparator.comparing(PostDto::getLikeCount);
-    Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp).reversed();
+    Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp);
     switch (mode) {
       case "recent":
         return getPostsWithModeOffsetLimit(offset, limit, recentMode);
@@ -48,14 +54,14 @@ public class PostsServiceImpl implements PostsService {
 
   public PostsResponse getPostsWithModeOffsetLimit(int offset, int limit,
       Comparator<PostDto> comparator) {
-        int count = postRepository.getAllByIsActiveAndModerationStatus(IS_ACTIVE, MODERATION_STATUS)
+    int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE,
+            CURRENT_TIME, MODERATION_STATUS)
         .size();
     List<PostDto> postsDto = postRepository
-        .getAllByIsActiveAndModerationStatus(
-            IS_ACTIVE,
+        .getAllByIsActiveAndTimeIsLessThanAndModerationStatus(
+            IS_ACTIVE, CURRENT_TIME,
             MODERATION_STATUS
         ).stream()
-        .filter(post -> post.getTime().getTime() < CURRENT_TIME)
         .map(DtoMapper::mapToPostDto)
         .sorted(comparator)
         .skip(offset)
