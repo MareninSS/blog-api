@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 public interface PostsService {
 
-  public PostsResponse getPosts(int offset, int limit, String mode);
+  PostsResponse getPosts(int offset, int limit, String mode);
 }

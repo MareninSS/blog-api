@@ -43,7 +43,7 @@ public class DtoMapper {
     userPostDto.setName(post.getUser().getName());
 
     postDto.setId(post.getId());
-    postDto.setTimestamp(post.getTime().getTime());
+    postDto.setTimestamp((post.getTime().getTime()) / 1000);
     postDto.setUser(userPostDto);
     postDto.setTitle(post.getTitle());
     postDto.setTitle(post.getTitle());

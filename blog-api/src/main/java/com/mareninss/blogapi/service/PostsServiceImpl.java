@@ -20,7 +20,7 @@ public class PostsServiceImpl implements PostsService {
   private PostRepository postRepository;
 
   private final Byte IS_ACTIVE;
-  private final ModerationStatusEnum MODERATION_STATUS;
+  private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
 
@@ -28,7 +28,8 @@ public class PostsServiceImpl implements PostsService {
     IS_ACTIVE = 1;
     CURRENT_TIME = new Date();
     postsResponse = new PostsResponse();
-    MODERATION_STATUS = ModerationStatusEnum.ACCEPTED;
+    MODERATION_STATUS = ModerationStatusEnum.ACCEPTED.toString();// Почему-то при nativeQuery не видит тип String
+    // если Enum (хотя в entity Enum строго типизирован в String)
   }
 
   @Override
@@ -54,18 +55,17 @@ public class PostsServiceImpl implements PostsService {
 
   public PostsResponse getPostsWithModeOffsetLimit(int offset, int limit,
       Comparator<PostDto> comparator) {
-    int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE,
+    int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
+            IS_ACTIVE,
             CURRENT_TIME, MODERATION_STATUS)
         .size();
     List<PostDto> postsDto = postRepository
-        .getAllByIsActiveAndTimeIsLessThanAndModerationStatus(
+        .getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffset(
             IS_ACTIVE, CURRENT_TIME,
-            MODERATION_STATUS
+            MODERATION_STATUS, limit, offset
         ).stream()
         .map(DtoMapper::mapToPostDto)
         .sorted(comparator)
-        .skip(offset)
-        .limit(limit)
         .collect(Collectors.toList());
     postsResponse.setCount(count);
     postsResponse.setPosts(postsDto);
