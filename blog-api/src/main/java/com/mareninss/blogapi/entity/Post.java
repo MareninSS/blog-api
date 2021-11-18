@@ -74,4 +74,22 @@ public class Post {
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
   private List<PostComment> postComments;
 
+  @Override
+  public String toString() {
+    return "Post{" +
+        "id=" + id +
+        ", isActive=" + isActive +
+        ", moderationStatus=" + moderationStatus +
+        ", moderatorId=" + moderatorId +
+        ", userId=" + userId +
+        ", time=" + time +
+        ", title='" + title + '\'' +
+        ", text='" + text + '\'' +
+        ", viewCount=" + viewCount +
+        ", user=" + user.getName() +
+        ", postVotes=" + postVotes +
+        ", tags=" + tags +
+        ", postComments=" + postComments.toString() +
+        '}';
+  }
 }
