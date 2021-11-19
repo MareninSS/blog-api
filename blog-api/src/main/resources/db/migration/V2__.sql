@@ -1,0 +1,20 @@
+ALTER TABLE posts
+    ADD CONSTRAINT FK_POSTS_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+
+ALTER TABLE post_comments
+    ADD CONSTRAINT FK_POST_COMMENTS_ON_POST FOREIGN KEY (post_id) REFERENCES posts (id);
+
+ALTER TABLE post_comments
+    ADD CONSTRAINT FK_POST_COMMENTS_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+
+ALTER TABLE post_votes
+    ADD CONSTRAINT FK_POST_VOTES_ON_POST FOREIGN KEY (post_id) REFERENCES posts (id);
+
+ALTER TABLE post_votes
+    ADD CONSTRAINT FK_POST_VOTES_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
+
+ALTER TABLE tag2post
+    ADD CONSTRAINT fk_tag2post_on_post FOREIGN KEY (post_id) REFERENCES posts (id);
+
+ALTER TABLE tag2post
+    ADD CONSTRAINT fk_tag2post_on_tag FOREIGN KEY (tag_id) REFERENCES tags (id);
