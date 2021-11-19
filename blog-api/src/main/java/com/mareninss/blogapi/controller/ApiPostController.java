@@ -18,4 +18,11 @@ public class ApiPostController {
       @RequestParam String mode) {
     return postsService.getPosts(offset, limit, mode);
   }
+
+  @GetMapping("/api/post/search")
+  public PostsResponse getPostsByQuery(@RequestParam int offset, @RequestParam int limit,
+      @RequestParam String query) {
+    return postsService.getPostsByQuery(offset, limit, query);
+// TODO: 19.11.2021 запрос пустой ?
+  }
 }
