@@ -5,11 +5,15 @@ import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.PostDto;
 import com.mareninss.blogapi.entity.ModerationStatusEnum;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -23,6 +27,8 @@ public class PostsServiceImpl implements PostsService {
   private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
+
+  private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
   public PostsServiceImpl() {
     IS_ACTIVE = 1;
@@ -73,6 +79,24 @@ public class PostsServiceImpl implements PostsService {
     }
   }
 
+  @Override
+  public PostsResponse getPostsByDates(int offset, int limit, String date) throws ParseException {
+    Pageable page = PageRequest.of(offset, limit);
+    Date dateNow = dateFormat.parse(date);
+    String validDate = dateFormat.format(dateNow);
+
+    int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
+        IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page).size();
+    List<PostDto> postDtos = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
+            IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page)
+        .stream()
+        .map(DtoMapper::mapToPostDto)
+        .collect(Collectors.toList());
+    postsResponse.setCount(count);
+    postsResponse.setPosts(postDtos);
+    return postsResponse;
+  }
+
 
   public PostsResponse getPostsWithModeOffsetLimit(int offset, int limit,
       Comparator<PostDto> comparator) {
@@ -92,4 +116,5 @@ public class PostsServiceImpl implements PostsService {
     postsResponse.setPosts(postsDto);
     return postsResponse;
   }
+
 }

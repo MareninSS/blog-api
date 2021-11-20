@@ -4,6 +4,7 @@ import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
 import com.mareninss.blogapi.service.PostsServiceImpl;
+import java.text.ParseException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,4 +38,12 @@ public class ApiPostController {
       @RequestParam(required = false) List<Integer> years) {
     return calendarService.getNumberOfPostByYear(years);
   }
+
+  @GetMapping("/api/post/byDate")
+  public PostsResponse getPostsByDates(@RequestParam int offset, @RequestParam int limit,
+      @RequestParam String date) throws ParseException {
+
+    return postsService.getPostsByDates(offset, limit, date);
+  }
 }
+

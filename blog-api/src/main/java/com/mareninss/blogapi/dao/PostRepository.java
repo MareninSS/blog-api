@@ -4,7 +4,7 @@ import com.mareninss.blogapi.entity.ModerationStatusEnum;
 import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -38,6 +38,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
       @Param(value = "moderationStatus") String moderationStatus,
       @Param("years") List<Integer> years);
+
+  @Query(value = "SELECT * FROM blog_db.posts where is_active = :isActive"
+      + "  and time < :time and time like concat(:timeNow,'%') and moderation_status = :moderationStatus", nativeQuery = true)
+  List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
+      @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
+      @Param(value = "timeNow") String timeNow,
+      @Param(value = "moderationStatus") String moderationStatus, Pageable pageable);
 }
 
 

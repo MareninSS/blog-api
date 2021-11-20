@@ -3,10 +3,12 @@ spring:
     url: jdbc:mysql://localhost:3306/blog_db?useSSL=false
     username: root
     password: an293gls
-
   jpa:
     hibernate:
       ddl-auto: none
+    show-sql: false
+
+
 
   flyway:
     enabled: true
