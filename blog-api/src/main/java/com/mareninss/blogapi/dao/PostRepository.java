@@ -1,8 +1,10 @@
 package com.mareninss.blogapi.dao;
 
+import com.mareninss.blogapi.entity.ModerationStatusEnum;
 import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,6 +32,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "moderationStatus") String moderationStatus, @Param(value = "limit") int limit,
       @Param(value = "offset") int offset, @Param(value = "query") String query);
 
+  @Query(value = "SELECT * FROM blog_db.posts where is_active = :isActive"
+      + "  and time < :time and moderation_status = :moderationStatus and YEAR(time) = :years", nativeQuery = true)
+  List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_AcceptedWhereYearsEqual(
+      @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
+      @Param(value = "moderationStatus") String moderationStatus,
+      @Param("years") List<Integer> years);
 }
 
 

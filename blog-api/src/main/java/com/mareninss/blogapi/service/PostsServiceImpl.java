@@ -55,7 +55,7 @@ public class PostsServiceImpl implements PostsService {
   @Override
   public PostsResponse getPostsByQuery(int offset, int limit, String query) {
     Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
-    if (query == null || query.trim().isEmpty()) {
+    if (query == null || query.isBlank()) {
       return getPostsWithModeOffsetLimit(offset, limit, recentMode);
     } else {
       int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffsetAndQueryLike(
