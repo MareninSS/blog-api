@@ -7,6 +7,7 @@ import com.mareninss.blogapi.service.PostsServiceImpl;
 import java.text.ParseException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,8 +43,13 @@ public class ApiPostController {
   @GetMapping("/api/post/byDate")
   public PostsResponse getPostsByDates(@RequestParam int offset, @RequestParam int limit,
       @RequestParam String date) throws ParseException {
-
     return postsService.getPostsByDates(offset, limit, date);
+  }
+
+  @GetMapping("/api/post/byTag")
+  public PostsResponse getPostsByTag(@RequestParam int offset, @RequestParam int limit,
+      @RequestParam String tag) {
+    return postsService.getPostsByTag(offset, limit, tag);
   }
 }
 

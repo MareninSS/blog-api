@@ -1,6 +1,5 @@
 package com.mareninss.blogapi.dao;
 
-import com.mareninss.blogapi.entity.ModerationStatusEnum;
 import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
 import java.util.List;
@@ -39,12 +38,26 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "moderationStatus") String moderationStatus,
       @Param("years") List<Integer> years);
 
-  @Query(value = "SELECT * FROM blog_db.posts where is_active = :isActive"
-      + "  and time < :time and time like concat(:timeNow,'%') and moderation_status = :moderationStatus", nativeQuery = true)
+  @Query(value = "SELECT * FROM blog_db.posts "
+      + "where is_active = :isActive "
+      + "and time < :time and time like concat(:timeNow,'%') "
+      + "and moderation_status = :moderationStatus", nativeQuery = true)
   List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
       @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
       @Param(value = "timeNow") String timeNow,
       @Param(value = "moderationStatus") String moderationStatus, Pageable pageable);
+
+@Query(value = "SELECT posts.*\n"
+    + "FROM blog_db.posts\n"
+    + "join blog_db.tag2post on posts.id = tag2post.post_id\n"
+    + "join blog_db.tags on tags.id = tag2post.tag_id\n"
+    + "where posts.is_active = :isActive "
+    + "and posts.time < :time "
+    + "and posts.moderation_status = :moderationStatus "
+    + "and tags.name like concat(:tag,'%')",nativeQuery = true)
+List<Post> findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(
+    @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
+    @Param(value = "moderationStatus") String moderationStatus,@Param("tag") String tag, Pageable pageable);
 }
 
 

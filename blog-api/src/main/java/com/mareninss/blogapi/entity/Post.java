@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -64,11 +65,9 @@ public class Post {
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
   private List<PostVote> postVotes;
 
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-      CascadeType.DETACH})
-  @JoinTable(name = "tag2post"
-      , joinColumns = @JoinColumn(name = "post_id")
-      , inverseJoinColumns = @JoinColumn(name = "tag_id"))
+  @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE,
+      CascadeType.REFRESH
+  }, mappedBy = "posts")
   private List<Tag> tags;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")

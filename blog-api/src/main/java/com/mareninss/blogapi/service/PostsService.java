@@ -11,4 +11,6 @@ public interface PostsService {
   PostsResponse getPostsByQuery(int offset, int limit, String query);
 
   PostsResponse getPostsByDates(int offset, int limit, String date) throws ParseException;
+
+  PostsResponse getPostsByTag(int offset, int limit, String tag);
 }

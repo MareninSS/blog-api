@@ -5,6 +5,7 @@ import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.PostDto;
 import com.mareninss.blogapi.entity.ModerationStatusEnum;
+import com.mareninss.blogapi.entity.Post;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
@@ -89,6 +90,23 @@ public class PostsServiceImpl implements PostsService {
         IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page).size();
     List<PostDto> postDtos = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
             IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page)
+        .stream()
+        .map(DtoMapper::mapToPostDto)
+        .collect(Collectors.toList());
+    postsResponse.setCount(count);
+    postsResponse.setPosts(postDtos);
+    return postsResponse;
+  }
+
+  @Override
+  public PostsResponse getPostsByTag(int offset, int limit, String tag) {
+    Pageable page = PageRequest.of(offset, limit);
+    int count = postRepository
+        .findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE, CURRENT_TIME,
+            MODERATION_STATUS, tag, page).size();
+    List<PostDto> postDtos = postRepository
+        .findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE, CURRENT_TIME,
+            MODERATION_STATUS, tag, page)
         .stream()
         .map(DtoMapper::mapToPostDto)
         .collect(Collectors.toList());
