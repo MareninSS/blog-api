@@ -1,14 +1,18 @@
 package com.mareninss.blogapi.controller;
 
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
+import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
 import com.mareninss.blogapi.service.PostsServiceImpl;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -50,6 +54,15 @@ public class ApiPostController {
   public PostsResponse getPostsByTag(@RequestParam int offset, @RequestParam int limit,
       @RequestParam String tag) {
     return postsService.getPostsByTag(offset, limit, tag);
+  }
+
+  @GetMapping("/api/post/{id}")
+  public ResponseEntity<?> getPostById(@PathVariable int id) {
+    Optional<PostByIdResponse> optional = postsService.getPostById(id);
+    if (optional.isEmpty()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found!");
+    }
+    return new ResponseEntity<>(optional.get(), HttpStatus.OK);
   }
 }
 

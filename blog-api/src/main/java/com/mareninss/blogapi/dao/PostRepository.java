@@ -1,8 +1,10 @@
 package com.mareninss.blogapi.dao;
 
+import com.mareninss.blogapi.entity.ModerationStatusEnum;
 import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -47,17 +49,21 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "timeNow") String timeNow,
       @Param(value = "moderationStatus") String moderationStatus, Pageable pageable);
 
-@Query(value = "SELECT posts.*\n"
-    + "FROM blog_db.posts\n"
-    + "join blog_db.tag2post on posts.id = tag2post.post_id\n"
-    + "join blog_db.tags on tags.id = tag2post.tag_id\n"
-    + "where posts.is_active = :isActive "
-    + "and posts.time < :time "
-    + "and posts.moderation_status = :moderationStatus "
-    + "and tags.name like concat(:tag,'%')",nativeQuery = true)
-List<Post> findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(
-    @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
-    @Param(value = "moderationStatus") String moderationStatus,@Param("tag") String tag, Pageable pageable);
+  @Query(value = "SELECT posts.*\n"
+      + "FROM blog_db.posts\n"
+      + "join blog_db.tag2post on posts.id = tag2post.post_id\n"
+      + "join blog_db.tags on tags.id = tag2post.tag_id\n"
+      + "where posts.is_active = :isActive "
+      + "and posts.time < :time "
+      + "and posts.moderation_status = :moderationStatus "
+      + "and tags.name like concat(:tag,'%')", nativeQuery = true)
+  List<Post> findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(
+      @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
+      @Param(value = "moderationStatus") String moderationStatus, @Param("tag") String tag,
+      Pageable pageable);
+
+  Optional<Post> findPostByIdAndIsActiveAndTimeIsLessThanAndModerationStatus(Integer id,
+      Byte isActive, Date time, ModerationStatusEnum moderationStatus);
 }
 
 

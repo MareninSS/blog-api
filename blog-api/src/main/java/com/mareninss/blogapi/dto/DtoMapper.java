@@ -1,9 +1,11 @@
 package com.mareninss.blogapi.dto;
 
+import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
+import java.util.Optional;
 
 public class DtoMapper {
 
@@ -53,6 +55,10 @@ public class DtoMapper {
     postDto.setCommentCount((int) commentCount);
     postDto.setViewCount(post.getViewCount());
     return postDto;
+  }
+
+  public static Optional<PostByIdResponse> mapToPostByIdDto(Optional<Post> post) {
+    return null;
   }
 
 

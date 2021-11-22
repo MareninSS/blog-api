@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.service;
 
+import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,7 @@ public class PostsServiceImpl implements PostsService {
   private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
+  private final Optional<PostByIdResponse> postByIdResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -35,6 +38,7 @@ public class PostsServiceImpl implements PostsService {
     IS_ACTIVE = 1;
     CURRENT_TIME = new Date();
     postsResponse = new PostsResponse();
+    postByIdResponse = Optional.of(new PostByIdResponse());
     MODERATION_STATUS = ModerationStatusEnum.ACCEPTED.toString();// Почему-то при nativeQuery не видит тип String
     // если Enum (хотя в entity Enum строго типизирован в String)
   }
@@ -113,6 +117,15 @@ public class PostsServiceImpl implements PostsService {
     postsResponse.setCount(count);
     postsResponse.setPosts(postDtos);
     return postsResponse;
+  }
+
+  @Override
+  public Optional<PostByIdResponse> getPostById(int id) {
+    Optional<Post> postById = postRepository
+        .findPostByIdAndIsActiveAndTimeIsLessThanAndModerationStatus(id, IS_ACTIVE, CURRENT_TIME,
+            ModerationStatusEnum.ACCEPTED);
+
+    return postByIdResponse;
   }
 
 
