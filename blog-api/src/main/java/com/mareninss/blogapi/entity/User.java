@@ -56,9 +56,4 @@ public class User {
   @JoinColumn(name = "user_id")
   private List<PostVote> postVotes;
 
-  @OneToMany(cascade = CascadeType.ALL)
-  @JoinColumn(name = "user_id")
-  private List<PostComment> postComments;
-
-
 }

@@ -48,4 +48,7 @@ public class PostComment {
   @JoinColumn(name = "parent_id")
   private List<PostComment> commentsToComment;
 
+  @ManyToOne
+  @JoinColumn(name = "user_id", insertable = false, updatable = false)
+  private User user;
 }

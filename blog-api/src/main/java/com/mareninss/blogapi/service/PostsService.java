@@ -16,5 +16,5 @@ public interface PostsService {
 
   PostsResponse getPostsByTag(int offset, int limit, String tag);
 
-  Optional<PostByIdResponse> getPostById(int id);
+  PostByIdResponse getPostById(int id);
 }

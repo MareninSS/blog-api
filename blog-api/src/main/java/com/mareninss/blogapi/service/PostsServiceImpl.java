@@ -7,6 +7,7 @@ import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.PostDto;
 import com.mareninss.blogapi.entity.ModerationStatusEnum;
 import com.mareninss.blogapi.entity.Post;
+import com.mareninss.blogapi.entity.Tag;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
@@ -30,7 +31,7 @@ public class PostsServiceImpl implements PostsService {
   private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
-  private final Optional<PostByIdResponse> postByIdResponse;
+  private final PostByIdResponse postByIdResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -38,7 +39,7 @@ public class PostsServiceImpl implements PostsService {
     IS_ACTIVE = 1;
     CURRENT_TIME = new Date();
     postsResponse = new PostsResponse();
-    postByIdResponse = Optional.of(new PostByIdResponse());
+    postByIdResponse = new PostByIdResponse();
     MODERATION_STATUS = ModerationStatusEnum.ACCEPTED.toString();// Почему-то при nativeQuery не видит тип String
     // если Enum (хотя в entity Enum строго типизирован в String)
   }
@@ -120,12 +121,35 @@ public class PostsServiceImpl implements PostsService {
   }
 
   @Override
-  public Optional<PostByIdResponse> getPostById(int id) {
+  public PostByIdResponse getPostById(int id) {
+    final boolean isActive = true;
+    final int LIKE = 1;
+    final int DISLIKE = 0;
+
     Optional<Post> postById = postRepository
         .findPostByIdAndIsActiveAndTimeIsLessThanAndModerationStatus(id, IS_ACTIVE, CURRENT_TIME,
             ModerationStatusEnum.ACCEPTED);
-
-    return postByIdResponse;
+    if (postById.isPresent()) {
+      postByIdResponse.setId(postById.get().getId());
+      postByIdResponse.setTimestamp(postById.get().getTime().getTime() / 1000);
+      postByIdResponse.setActive(isActive);
+      postByIdResponse.setUser(DtoMapper.mapToUserPostDto(postById.get().getUser()));
+      postByIdResponse.setTitle(postById.get().getTitle());
+      postByIdResponse.setText(postById.get().getText());
+      postByIdResponse.setLikeCount(
+          (int) postById.get().getPostVotes().stream().filter(like -> like.getValue() == LIKE)
+              .count());
+      postByIdResponse.setDislikeCount(
+          (int) postById.get().getPostVotes().stream()
+              .filter(dislike -> dislike.getValue() == DISLIKE).count());
+      postByIdResponse.setViewCount(
+          1);// 22.11.2021  сделать счетчик (Спросить у куратора как узнать сессию текущего пользователя, авторизован ли пользователь)
+      postByIdResponse.setComments(DtoMapper.mapToCommentsDto(postById.get()));
+      postByIdResponse.setTags(postById.get().getTags().stream().map(Tag::getName).collect(
+          Collectors.toList()));
+      return postByIdResponse;
+    }
+    return null;
   }
 
 

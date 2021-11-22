@@ -13,10 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api")
 public class ApiPostController {
 
   @Autowired
@@ -25,44 +27,44 @@ public class ApiPostController {
   @Autowired
   private CalendarServiceImpl calendarService;
 
-  @GetMapping("/api/post")
+  @GetMapping("/post")
   public PostsResponse getPosts(@RequestParam int offset, @RequestParam int limit,
       @RequestParam String mode) {
     return postsService.getPosts(offset, limit, mode);
   }
 
-  @GetMapping("/api/post/search")
+  @GetMapping("/post/search")
   public PostsResponse getPostsByQuery(@RequestParam int offset, @RequestParam int limit,
       @RequestParam String query) {
     return postsService.getPostsByQuery(offset, limit, query);
 // TODO: 19.11.2021 запрос пустой ?
   }
 
-  @GetMapping("/api/calendar")
+  @GetMapping("/calendar")
   public CalendarCountPostResponse getNumberOfPostByYears(
       @RequestParam(required = false) List<Integer> years) {
     return calendarService.getNumberOfPostByYear(years);
   }
 
-  @GetMapping("/api/post/byDate")
+  @GetMapping("/post/byDate")
   public PostsResponse getPostsByDates(@RequestParam int offset, @RequestParam int limit,
       @RequestParam String date) throws ParseException {
     return postsService.getPostsByDates(offset, limit, date);
   }
 
-  @GetMapping("/api/post/byTag")
+  @GetMapping("/post/byTag")
   public PostsResponse getPostsByTag(@RequestParam int offset, @RequestParam int limit,
       @RequestParam String tag) {
     return postsService.getPostsByTag(offset, limit, tag);
   }
 
-  @GetMapping("/api/post/{id}")
+  @GetMapping("/post/{id}")
   public ResponseEntity<?> getPostById(@PathVariable int id) {
-    Optional<PostByIdResponse> optional = postsService.getPostById(id);
-    if (optional.isEmpty()) {
+    Optional<PostByIdResponse> post = Optional.ofNullable(postsService.getPostById(id));
+    if (post.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found!");
     }
-    return new ResponseEntity<>(optional.get(), HttpStatus.OK);
+    return new ResponseEntity<>(post, HttpStatus.OK);
   }
 }
 

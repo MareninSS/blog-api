@@ -3,9 +3,13 @@ package com.mareninss.blogapi.dto;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.entity.Post;
+import com.mareninss.blogapi.entity.PostComment;
 import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import org.jsoup.Jsoup;
 
 public class DtoMapper {
 
@@ -57,16 +61,37 @@ public class DtoMapper {
     return postDto;
   }
 
-  public static Optional<PostByIdResponse> mapToPostByIdDto(Optional<Post> post) {
-    return null;
+  public static List<CommentsDto> mapToCommentsDto(Post post) {
+    List<PostComment> postComments = post.getPostComments();
+    List<CommentsDto> commentsDto = new ArrayList<>();
+
+    postComments.forEach(postComment -> {
+      CommentsDto comment = new CommentsDto();
+
+      comment.setId(postComment.getId());
+      comment.setTimestamp(postComment.getTime().getTime() / 1000);
+      comment.setText(postComment.getText());
+      comment.setUser(mapToUserCommentsDto(postComment.getUser()));
+      commentsDto.add(comment);
+    });
+    return commentsDto;
+  }
+
+  public static UserCommentsDto mapToUserCommentsDto(User user) {
+    UserCommentsDto userCommentsDto = new UserCommentsDto();
+    userCommentsDto.setId(user.getId());
+    userCommentsDto.setName(user.getName());
+    userCommentsDto.setPhoto(user.getPhoto());
+    return userCommentsDto;
   }
 
 
   public static String getAnnounce(String text) {
-    if (text.length() <= 150) {
-      return text + "...";
+    String textOut = Jsoup.parse(text).text();
+    if (textOut.length() <= 150) {
+      return textOut + "...";
     } else {
-      return text.substring(0, 150) + "...";
+      return textOut.substring(0, 150) + "...";
     }
   }
 
