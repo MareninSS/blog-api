@@ -21,6 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PostComment {
 
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -43,12 +44,7 @@ public class PostComment {
 
   @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
       CascadeType.DETACH})
-  @JoinColumn(name = "post_id", insertable = false, updatable = false)
-  private Post post;
-
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-      CascadeType.DETACH})
-  @JoinColumn(name = "user_id", insertable = false, updatable = false)
-  private User user;
+  @JoinColumn(name = "parent_id", insertable = false, updatable = false)
+  private PostComment postComment;
 
 }
