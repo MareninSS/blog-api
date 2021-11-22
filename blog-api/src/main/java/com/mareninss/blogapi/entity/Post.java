@@ -28,6 +28,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Post {
 
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -62,15 +63,19 @@ public class Post {
   @JoinColumn(name = "user_id", insertable = false, updatable = false)
   private User user;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+  @OneToMany(cascade = CascadeType.ALL)
+  @JoinColumn(name = "post_id")
   private List<PostVote> postVotes;
 
-  @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-      CascadeType.REFRESH
-  }, mappedBy = "posts")
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
+      CascadeType.DETACH})
+  @JoinTable(name = "tag2post"
+      , joinColumns = @JoinColumn(name = "post_id")
+      , inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private List<Tag> tags;
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+  @OneToMany(cascade = CascadeType.ALL)
+  @JoinColumn(name = "post_id")
   private List<PostComment> postComments;
 
 }

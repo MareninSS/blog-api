@@ -38,14 +38,5 @@ public class PostVote {
   @Column(name = "value", nullable = false)
   private Byte value;
 
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-      CascadeType.DETACH})
-  @JoinColumn(name = "post_id", insertable = false, updatable = false)
-  private Post post;
-
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-      CascadeType.DETACH})
-  @JoinColumn(name = "user_id", insertable = false, updatable = false)
-  private User user;
 
 }

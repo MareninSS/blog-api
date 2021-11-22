@@ -31,8 +31,8 @@ public class Tag {
   @Column(name = "name", nullable = false)
   private String name;
 
-  @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE,
-      CascadeType.REFRESH})
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
+      CascadeType.DETACH})
   @JoinTable(name = "tag2post"
       , joinColumns = @JoinColumn(name = "tag_id")
       , inverseJoinColumns = @JoinColumn(name = "post_id"))

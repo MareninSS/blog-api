@@ -1,6 +1,7 @@
 package com.mareninss.blogapi.entity;
 
 import java.util.Date;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class PostComment {
+
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,14 +44,8 @@ public class PostComment {
   @Column(name = "text", nullable = false)
   private String text;
 
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-      CascadeType.DETACH})
-  @JoinColumn(name = "post_id", insertable = false, updatable = false)
-  private Post post;
-
-  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
-      CascadeType.DETACH})
-  @JoinColumn(name = "user_id", insertable = false, updatable = false)
-  private User user;
+  @OneToMany(cascade = CascadeType.ALL)
+  @JoinColumn(name = "parent_id")
+  private List<PostComment> commentsToComment;
 
 }
