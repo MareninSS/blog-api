@@ -15,10 +15,6 @@ public class DtoMapper {
 
   private PostsResponse postsResponse;
 
-  public static UserDto mapToUserDto(User user) {
-    return null;
-  }
-
   public static UserPostDto mapToUserPostDto(User user) {
     UserPostDto userPostDto = new UserPostDto();
     userPostDto.setId(user.getId());
@@ -28,7 +24,7 @@ public class DtoMapper {
 
   public static PostDto mapToPostDto(Post post) {
     final int LIKE = 1;
-    final int DISLIKE = 0;
+    final int DISLIKE = -1;
 
     long countLike = post.getPostVotes()
         .stream()
@@ -101,5 +97,17 @@ public class DtoMapper {
     tagDto.setWeight(weightTag);
 
     return tagDto;
+  }
+
+  public static UserDto mapToUserDto(User user) {
+    UserDto userDto = new UserDto();
+    userDto.setId(user.getId());
+    userDto.setName(user.getName());
+    userDto.setPhoto(user.getPhoto());
+    userDto.setEmail(user.getEmail());
+    userDto.setModerator(user.getIsModerator() == 1);
+    userDto.setModerationCount(0);//Организовать логику счетчика(def = 0)
+    userDto.setSettings(user.getIsModerator() == 1);
+    return userDto;
   }
 }

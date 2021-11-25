@@ -1,15 +1,10 @@
 package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.response.AuthStatusResponse;
-import org.springframework.stereotype.Service;
+import java.security.Principal;
 
-@Service
-public class AuthStatusService {
+public interface AuthStatusService {
 
-  public AuthStatusResponse getAuthStatus() {
-    AuthStatusResponse authStatusResponse = new AuthStatusResponse();
-    authStatusResponse.setResult(false);
-    return authStatusResponse;
-  }
+  AuthStatusResponse getAuthStatus(Principal principal);
+
 }
-

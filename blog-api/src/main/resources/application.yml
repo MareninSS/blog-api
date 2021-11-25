@@ -3,12 +3,11 @@ spring:
     url: jdbc:mysql://localhost:3306/blog_db?useSSL=false
     username: root
     password: an293gls
+
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: false
-
-
 
   flyway:
     enabled: true
@@ -18,8 +17,7 @@ spring:
     url: jdbc:mysql://localhost:3306/blog_db?useSSL=false
     locations: filesystem:src/main/resources/db/migration
     create-schemas: false
-    baseline-on-migrate: off
-
+    baseline-on-migrate: on
 
 blog:
   title: DevPub
@@ -28,6 +26,10 @@ blog:
   email: mail@gmail.com
   copyright: Сергей М
   copyrightFrom: 2002
+
+captcha:
+  timeToDel: 60 # ! Формат времени для удаления captcha из БД в МИНУТАХ!
+
 
 
 

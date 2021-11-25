@@ -118,13 +118,14 @@ public class PostsServiceImpl implements PostsService {
     postsResponse.setCount(count);
     postsResponse.setPosts(postDtos);
     return postsResponse;
+
   }
 
   @Override
   public PostByIdResponse getPostById(int id) {
     final boolean isActive = true;
     final int LIKE = 1;
-    final int DISLIKE = 0;
+    final int DISLIKE = -1;
 
     Optional<Post> postById = postRepository
         .findPostByIdAndIsActiveAndTimeIsLessThanAndModerationStatus(id, IS_ACTIVE, CURRENT_TIME,
@@ -142,8 +143,8 @@ public class PostsServiceImpl implements PostsService {
       postByIdResponse.setDislikeCount(
           (int) postById.get().getPostVotes().stream()
               .filter(dislike -> dislike.getValue() == DISLIKE).count());
-      postByIdResponse.setViewCount(
-          1);// 22.11.2021  сделать счетчик (Спросить у куратора как узнать сессию текущего пользователя, авторизован ли пользователь)
+      postByIdResponse.setViewCount(1);// 22.11.2021  сделать счетчик (Спросить у куратора как узнать
+      // сессию текущего пользователя, авторизован ли пользователь)
       postByIdResponse.setComments(DtoMapper.mapToCommentsDto(postById.get()));
       postByIdResponse.setTags(postById.get().getTags().stream().map(Tag::getName).collect(
           Collectors.toList()));

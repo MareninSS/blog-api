@@ -28,14 +28,19 @@ public class ApiPostController {
   private CalendarServiceImpl calendarService;
 
   @GetMapping("/post")
-  public PostsResponse getPosts(@RequestParam int offset, @RequestParam int limit,
-      @RequestParam String mode) {
+//  @PreAuthorize("hasAuthority('user:write')")
+  public PostsResponse getPosts(@RequestParam(required = false, defaultValue = "0") int offset,
+      @RequestParam(required = false, defaultValue = "10") int limit,
+      @RequestParam(required = false, defaultValue = "recent") String mode) {
     return postsService.getPosts(offset, limit, mode);
   }
 
   @GetMapping("/post/search")
-  public PostsResponse getPostsByQuery(@RequestParam int offset, @RequestParam int limit,
-      @RequestParam String query) {
+//  @PreAuthorize("hasAuthority('user:moderate')")
+  public PostsResponse getPostsByQuery(
+      @RequestParam(required = false, defaultValue = "0") int offset,
+      @RequestParam(required = false, defaultValue = "10") int limit,
+      @RequestParam(required = false) String query) {
     return postsService.getPostsByQuery(offset, limit, query);
 // TODO: 19.11.2021 запрос пустой ?
   }
