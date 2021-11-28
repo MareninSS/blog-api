@@ -1,17 +1,15 @@
 package com.mareninss.blogapi.dto;
 
-import com.mareninss.blogapi.api.response.PostsResponse;
+
 import com.mareninss.blogapi.entity.Post;
+import com.mareninss.blogapi.entity.PostComment;
 import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
+import java.util.ArrayList;
+import java.util.List;
+import org.jsoup.Jsoup;
 
 public class DtoMapper {
-
-  private PostsResponse postsResponse;
-
-  public static UserDto mapToUserDto(User user) {
-    return null;
-  }
 
   public static UserPostDto mapToUserPostDto(User user) {
     UserPostDto userPostDto = new UserPostDto();
@@ -22,7 +20,7 @@ public class DtoMapper {
 
   public static PostDto mapToPostDto(Post post) {
     final int LIKE = 1;
-    final int DISLIKE = 0;
+    final int DISLIKE = -1;
 
     long countLike = post.getPostVotes()
         .stream()
@@ -39,7 +37,9 @@ public class DtoMapper {
 
     PostDto postDto = new PostDto();
     UserPostDto userPostDto = new UserPostDto();
-    userPostDto.setId(post.getUserId());
+
+    userPostDto.setId(post.getAuthorId());
+
     userPostDto.setName(post.getUser().getName());
 
     postDto.setId(post.getId());
@@ -55,12 +55,37 @@ public class DtoMapper {
     return postDto;
   }
 
+  public static List<CommentsDto> mapToCommentsDto(Post post) {
+    List<PostComment> postComments = post.getPostComments();
+    List<CommentsDto> commentsDto = new ArrayList<>();
+
+    postComments.forEach(postComment -> {
+      CommentsDto comment = new CommentsDto();
+
+      comment.setId(postComment.getId());
+      comment.setTimestamp(postComment.getTime().getTime() / 1000);
+      comment.setText(postComment.getText());
+      comment.setUser(mapToUserCommentsDto(postComment.getUser()));
+      commentsDto.add(comment);
+    });
+    return commentsDto;
+  }
+
+  public static UserCommentsDto mapToUserCommentsDto(User user) {
+    UserCommentsDto userCommentsDto = new UserCommentsDto();
+    userCommentsDto.setId(user.getId());
+    userCommentsDto.setName(user.getName());
+    userCommentsDto.setPhoto(user.getPhoto());
+    return userCommentsDto;
+  }
+
 
   public static String getAnnounce(String text) {
-    if (text.length() <= 150) {
-      return text + "...";
+    String textOut = Jsoup.parse(text).text();
+    if (textOut.length() <= 150) {
+      return textOut + "...";
     } else {
-      return text.substring(0, 150) + "...";
+      return textOut.substring(0, 150) + "...";
     }
   }
 
@@ -70,5 +95,22 @@ public class DtoMapper {
     tagDto.setWeight(weightTag);
 
     return tagDto;
+  }
+
+  public static UserDto mapToUserDto(User user, int moderationCount) {
+    UserDto userDto = new UserDto();
+    userDto.setId(user.getId());
+    userDto.setName(user.getName());
+    userDto.setPhoto(user.getPhoto());
+    userDto.setEmail(user.getEmail());
+    userDto.setModerator(user.getIsModerator() == 1);
+    if (user.getIsModerator() != 1) {
+      userDto.setModerationCount(0);
+    } else {
+      userDto.setModerationCount(moderationCount);
+    }
+    userDto.setSettings(user.getIsModerator() == 1);
+
+    return userDto;
   }
 }

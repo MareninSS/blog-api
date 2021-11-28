@@ -38,13 +38,13 @@ public class Post {
 
   @Column(name = "moderation_status", nullable = false)
   @Enumerated(EnumType.STRING)
-  private ModerationStatusEnum moderationStatus;
+  private ModerationStatus moderationStatus;
 
   @Column(name = "moderator_id")
   private Integer moderatorId;
 
   @Column(name = "user_id", nullable = false)
-  private Integer userId;
+  private Integer authorId;
 
   @Column(name = "time", nullable = false)
   private Date time;

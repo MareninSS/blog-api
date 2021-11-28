@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-
-
 @Getter
 @Setter
 public class UserDto {
@@ -24,4 +22,5 @@ public class UserDto {
 
   private int moderationCount;
 
+  private boolean settings;
 }

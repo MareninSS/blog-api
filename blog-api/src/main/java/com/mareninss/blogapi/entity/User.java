@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.entity;
 
+import com.mareninss.blogapi.config.Role;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -28,7 +29,7 @@ public class User {
   private Integer id;
 
   @Column(name = "is_moderator", nullable = false)
-  private boolean isModerator;
+  private Integer isModerator;
 
   @Column(name = "reg_time", nullable = false)
   private Date regTime;
@@ -48,17 +49,7 @@ public class User {
   @Column(name = "photo")
   private String photo;
 
-  @OneToMany(cascade = CascadeType.ALL)
-  @JoinColumn(name = "moderator_id")
-  private List<Post> posts;
-
-  @OneToMany(cascade = CascadeType.ALL)
-  @JoinColumn(name = "user_id")
-  private List<PostVote> postVotes;
-
-  @OneToMany(cascade = CascadeType.ALL)
-  @JoinColumn(name = "user_id")
-  private List<PostComment> postComments;
-
-
+  public Role getRole() {
+    return isModerator == 1 ? Role.MODERATOR : Role.USER;
+  }
 }
