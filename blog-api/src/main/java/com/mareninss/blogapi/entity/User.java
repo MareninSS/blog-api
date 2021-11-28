@@ -49,14 +49,6 @@ public class User {
   @Column(name = "photo")
   private String photo;
 
-  @OneToMany(cascade = CascadeType.ALL)
-  @JoinColumn(name = "moderator_id")
-  private List<Post> posts;
-
-  @OneToMany(cascade = CascadeType.ALL)
-  @JoinColumn(name = "user_id")
-  private List<PostVote> postVotes;
-
   public Role getRole() {
     return isModerator == 1 ? Role.MODERATOR : Role.USER;
   }

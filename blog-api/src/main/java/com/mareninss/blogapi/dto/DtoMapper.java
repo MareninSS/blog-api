@@ -1,14 +1,11 @@
 package com.mareninss.blogapi.dto;
 
-import com.mareninss.blogapi.api.response.PostByIdResponse;
-import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.PostComment;
 import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.jsoup.Jsoup;
 
 public class DtoMapper {
@@ -39,7 +36,7 @@ public class DtoMapper {
 
     PostDto postDto = new PostDto();
     UserPostDto userPostDto = new UserPostDto();
-    userPostDto.setId(post.getUserId());
+    userPostDto.setId(post.getAuthorId());
     userPostDto.setName(post.getUser().getName());
 
     postDto.setId(post.getId());

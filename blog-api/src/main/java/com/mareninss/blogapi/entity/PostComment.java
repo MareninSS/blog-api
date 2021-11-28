@@ -46,7 +46,7 @@ public class PostComment {
 
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "parent_id")
-  private List<PostComment> commentsToComment;
+  private List<PostComment> parent;
 
   @ManyToOne
   @JoinColumn(name = "user_id", insertable = false, updatable = false)

@@ -159,7 +159,7 @@ public class PostsServiceImpl implements PostsService {
       if (principal != null) {
         User currentUser = userRepository.findByEmail(principal.getName())
             .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-        if (Objects.equals(currentUser.getId(), postById.get().getUserId())
+        if (Objects.equals(currentUser.getId(), postById.get().getAuthorId())
             || currentUser.getIsModerator() == MODERATOR) {
           postByIdResponse.setViewCount(viewCount);//получаем
         }else{

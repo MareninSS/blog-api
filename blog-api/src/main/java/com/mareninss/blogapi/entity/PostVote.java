@@ -1,7 +1,6 @@
 package com.mareninss.blogapi.entity;
 
 import java.util.Date;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,5 +37,7 @@ public class PostVote {
   @Column(name = "value", nullable = false)
   private Byte value;
 
-
+  @ManyToOne
+  @JoinColumn(name = "user_id", insertable = false, updatable = false)
+  private User user;
 }

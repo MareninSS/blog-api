@@ -44,7 +44,7 @@ public class Post {
   private Integer moderatorId;
 
   @Column(name = "user_id", nullable = false)
-  private Integer userId;
+  private Integer authorId;
 
   @Column(name = "time", nullable = false)
   private Date time;
