@@ -3,7 +3,6 @@ spring:
     url: jdbc:mysql://localhost:3306/blog_db?useSSL=false
     username: root
     password: an293gls
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -23,13 +22,16 @@ blog:
   title: DevPub
   subtitle: Рассказы разработчиков
   phone: +7 911 922 33 44
-  email: mail@gmail.com
+  email: mss9836@gmail.com
   copyright: Сергей М
   copyrightFrom: 2002
 
 captcha:
   timeToDel: 60 # ! Формат времени для удаления captcha из БД в МИНУТАХ!
 
-
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
 
 

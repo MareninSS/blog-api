@@ -1,7 +1,6 @@
 package com.mareninss.blogapi.service;
 
 import com.github.cage.Cage;
-import com.github.cage.YCage;
 import com.github.cage.image.Painter;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.dao.CaptchaRepository;
@@ -11,6 +10,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class CaptchaServiceImpl implements CaptchaService {
@@ -28,8 +28,9 @@ public class CaptchaServiceImpl implements CaptchaService {
   }
 
   @Override
+  @Transactional
   public CaptchaResponse generateCaptcha() {
-    Painter painter = new Painter(200, 100, null, null, null, null);
+    Painter painter = new Painter(150, 75, null, null, null, null);
     cage = new Cage(painter, null, null, null, null, null, null);
     String namePrefix = "data:image/png;base64, ";
     String code = cage.getTokenGenerator().next(); // получаю текст картинки
@@ -44,9 +45,8 @@ public class CaptchaServiceImpl implements CaptchaService {
     captchaCode.setCode(code);
     captchaCode.setSecretCode(secret);
 
-    captchaRepository.saveAndFlush(captchaCode);
-
-    // TODO: 29.11.2021 реализация удаления из БД устаревшие капчи
+    captchaRepository.deleteByTime(timeToDelete);
+    captchaRepository.save(captchaCode);
 
     captchaResponse.setSecret(secret);
     captchaResponse.setImage(image);

@@ -19,8 +19,10 @@ public class InitResponse {
   @Value("${blog.phone}")
   private String phone;
 
+  @Value("${blog.email}")
   private String email;
 
+  @Value("${blog.copyright}")
   private String copyright;
 
   private String copyrightFrom;

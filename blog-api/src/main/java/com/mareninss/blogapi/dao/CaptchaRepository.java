@@ -8,7 +8,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface CaptchaRepository extends JpaRepository<CaptchaCode, Integer> {
 
-//  @Modifying
-//  @Query("delete from CaptchaCode c where c.time < date_add()")
-//  void deleteAllByTimeL(@Param("time") int time);
+  CaptchaCode findByCode(String code);
+
+  @Modifying
+  @Query(value =
+      "DELETE FROM blog_db.captcha_codes WHERE time < date_add(now(), interval - :time minute )"
+          + " limit 5;", nativeQuery = true)
+  void deleteByTime(@Param(value = "time") int time);
 }

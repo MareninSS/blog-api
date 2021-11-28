@@ -106,8 +106,11 @@ public class DtoMapper {
     userDto.setPhoto(user.getPhoto());
     userDto.setEmail(user.getEmail());
     userDto.setModerator(user.getIsModerator() == 1);
-    userDto.setModerationCount(0);//Организовать логику счетчика(def = 0)
+    if (user.getIsModerator() != 1) {
+      userDto.setModerationCount(0);//Организовать логику счетчика(def = 0)
+    }
     userDto.setSettings(user.getIsModerator() == 1);
+
     return userDto;
   }
 }
