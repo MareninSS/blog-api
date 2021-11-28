@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SettingsService {
 
+
   @Autowired
   private SettingsRepository settingsRepository;
   private final SettingsResponse settingsResponse;
@@ -43,5 +44,3 @@ public class SettingsService {
         "YES");
   }
 }
-
-

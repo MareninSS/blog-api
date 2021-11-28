@@ -6,5 +6,4 @@ import java.security.Principal;
 public interface AuthStatusService {
 
   AuthStatusResponse getAuthStatus(Principal principal);
-
 }

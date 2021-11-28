@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.service;
 
+
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
@@ -26,14 +27,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
 public class PostsServiceImpl implements PostsService {
 
   @Autowired
   private PostRepository postRepository;
+
   @Autowired
   private UserRepository userRepository;
+
 
   private final Byte IS_ACTIVE;
   private final String MODERATION_STATUS;
@@ -43,23 +45,28 @@ public class PostsServiceImpl implements PostsService {
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+
   public PostsServiceImpl() {
     IS_ACTIVE = 1;
     CURRENT_TIME = new Date();
     postsResponse = new PostsResponse();
+
     postByIdResponse = new PostByIdResponse();
     MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
+
   }
 
   @Override
   public PostsResponse getPosts(int offset, int limit, String mode) {
     Pageable page = PageRequest.of(offset, limit);
+
     Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
     Comparator<PostDto> popularMode = Comparator.comparing(PostDto::getCommentCount);
     Comparator<PostDto> bestMode = Comparator.comparing(PostDto::getLikeCount);
     Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp);
     switch (mode) {
       case "recent":
+
         return getPostsWithModeOffsetLimit(page, recentMode);
       case "popular":
         return getPostsWithModeOffsetLimit(page, popularMode);
@@ -70,6 +77,7 @@ public class PostsServiceImpl implements PostsService {
     }
     return postsResponse;
   }
+
 
   @Override
   public PostsResponse getPostsByQuery(int offset, int limit, String query) {
@@ -199,5 +207,4 @@ public class PostsServiceImpl implements PostsService {
     postsResponse.setPosts(postsDto);
     return postsResponse;
   }
-
 }

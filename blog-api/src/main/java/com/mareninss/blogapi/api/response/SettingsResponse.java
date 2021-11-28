@@ -16,5 +16,4 @@ public class SettingsResponse {
 
   @JsonProperty("STATISTICS_IS_PUBLIC")
   private boolean statisticIsPublic;
-
 }

@@ -37,6 +37,7 @@ public class PostVote {
   @Column(name = "value", nullable = false)
   private Byte value;
 
+
   @ManyToOne
   @JoinColumn(name = "user_id", insertable = false, updatable = false)
   private User user;

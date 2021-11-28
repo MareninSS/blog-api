@@ -22,7 +22,6 @@ public class InitResponse {
   @Value("${blog.email}")
   private String email;
 
-  @Value("${blog.copyright}")
   private String copyright;
 
   private String copyrightFrom;

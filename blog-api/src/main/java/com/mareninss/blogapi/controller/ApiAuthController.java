@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ApiAuthController {
 
-
   @Autowired
   private AuthStatusServiceImpl authStatusService;
   @Autowired

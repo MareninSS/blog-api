@@ -46,6 +46,7 @@ public class PostComment {
 
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "parent_id")
+
   private List<PostComment> parent;
 
   @ManyToOne

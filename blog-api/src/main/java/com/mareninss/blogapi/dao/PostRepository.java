@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.dao;
 
+
 import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
@@ -18,6 +19,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
       @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
       @Param(value = "moderationStatus") String moderationStatus);
+
 
   @Query(value = "SELECT * FROM blog_db.posts where is_active = :isActive"
       + "  and time < :time and moderation_status = :moderationStatus", nativeQuery = true)
@@ -71,6 +73,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   @Modifying
   @Query(value = "UPDATE blog_db.posts SET view_count = view_count + 1 WHERE id = :id", nativeQuery = true)
   int updateViewCountById(@Param(value = "id") int id);
+
 }
 
 

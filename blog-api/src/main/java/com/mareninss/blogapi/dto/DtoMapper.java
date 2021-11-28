@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.dto;
 
+
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.PostComment;
 import com.mareninss.blogapi.entity.Tag;
@@ -36,7 +37,9 @@ public class DtoMapper {
 
     PostDto postDto = new PostDto();
     UserPostDto userPostDto = new UserPostDto();
+
     userPostDto.setId(post.getAuthorId());
+
     userPostDto.setName(post.getUser().getName());
 
     postDto.setId(post.getId());
