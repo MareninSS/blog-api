@@ -13,8 +13,6 @@ import org.jsoup.Jsoup;
 
 public class DtoMapper {
 
-  private PostsResponse postsResponse;
-
   public static UserPostDto mapToUserPostDto(User user) {
     UserPostDto userPostDto = new UserPostDto();
     userPostDto.setId(user.getId());
@@ -99,7 +97,7 @@ public class DtoMapper {
     return tagDto;
   }
 
-  public static UserDto mapToUserDto(User user) {
+  public static UserDto mapToUserDto(User user, int moderationCount) {
     UserDto userDto = new UserDto();
     userDto.setId(user.getId());
     userDto.setName(user.getName());
@@ -107,7 +105,9 @@ public class DtoMapper {
     userDto.setEmail(user.getEmail());
     userDto.setModerator(user.getIsModerator() == 1);
     if (user.getIsModerator() != 1) {
-      userDto.setModerationCount(0);//Организовать логику счетчика(def = 0)
+      userDto.setModerationCount(0);
+    } else {
+      userDto.setModerationCount(moderationCount);
     }
     userDto.setSettings(user.getIsModerator() == 1);
 

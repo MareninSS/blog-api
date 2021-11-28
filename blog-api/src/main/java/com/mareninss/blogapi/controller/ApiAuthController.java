@@ -36,13 +36,17 @@ public class ApiAuthController {
   private RegisterService registerService;
 
   @GetMapping("/api/auth/check")
-  public AuthStatusResponse getAuthStatus(Principal principal) {
-    return authStatusService.getAuthStatus(principal);
+  public ResponseEntity<AuthStatusResponse> getAuthStatus(Principal principal) {
+    return ResponseEntity.ok(authStatusService.getAuthStatus(principal));
   }
 
   @GetMapping("/api/auth/captcha")
-  public CaptchaResponse getCaptcha() {
-    return captchaService.generateCaptcha();
+  public ResponseEntity<CaptchaResponse> getCaptcha() {
+    CaptchaResponse captcha = captchaService.generateCaptcha();
+    if (captcha == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    return ResponseEntity.ok(captchaService.generateCaptcha());
   }
 
   @PostMapping("/api/auth/login")

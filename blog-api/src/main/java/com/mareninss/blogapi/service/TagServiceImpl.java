@@ -6,7 +6,7 @@ import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.TagRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.TagDto;
-import com.mareninss.blogapi.entity.ModerationStatusEnum;
+import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Tag;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +34,7 @@ public class TagServiceImpl implements TagService {
   public TagServiceImpl() {
     IS_ACTIVE = 1;
     CURRENT_TIME = new Date();
-    MODERATION_STATUS = ModerationStatusEnum.ACCEPTED.toString();
+    MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
     tagResponse = new TagResponse();
   }
 
@@ -66,12 +66,12 @@ public class TagServiceImpl implements TagService {
         (double) maxPopularTag / (double) count;//ненормализованный вес самого популярного тэга
     double k = 1 / dWeightMax;//коэфф для нормализации
 
-    List<TagDto> tagDtos = tagList.stream().map(tag -> {
+    return tagList.stream().map(tag -> {
       int frequency = tag.getPosts().size();// количество постов с тэгом
       double dWeight = (double) frequency / (double) count;//ненормализованный вес
       double weight = (dWeight * k);
       return DtoMapper.mapToTagDto(tag, weight);
     }).collect(Collectors.toList());
-    return tagDtos;
   }
 }
+

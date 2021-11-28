@@ -7,7 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,7 +38,7 @@ public class Post {
 
   @Column(name = "moderation_status", nullable = false)
   @Enumerated(EnumType.STRING)
-  private ModerationStatusEnum moderationStatus;
+  private ModerationStatus moderationStatus;
 
   @Column(name = "moderator_id")
   private Integer moderatorId;

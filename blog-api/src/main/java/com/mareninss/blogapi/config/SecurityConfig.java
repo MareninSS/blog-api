@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .authenticated()
         .and()
         .formLogin().disable()//Форма отключена, но на "/" вылазит. Уточнить почему?
-        .httpBasic();
+        .httpBasic().disable();
   }
 
   @Bean

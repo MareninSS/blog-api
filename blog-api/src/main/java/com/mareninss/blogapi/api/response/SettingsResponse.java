@@ -9,12 +9,12 @@ import lombok.Setter;
 public class SettingsResponse {
 
   @JsonProperty("MULTIUSER_MODE")
-  private boolean multiUserMode = false;
+  private boolean multiUserMode;
 
   @JsonProperty("POST_PREMODERATION")
-  private boolean postPreModeration = false;
+  private boolean postPreModeration;
 
   @JsonProperty("STATISTICS_IS_PUBLIC")
-  private boolean statisticIsPublic = false;
+  private boolean statisticIsPublic;
 
 }

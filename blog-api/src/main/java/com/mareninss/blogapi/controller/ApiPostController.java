@@ -5,12 +5,14 @@ import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
 import com.mareninss.blogapi.service.PostsServiceImpl;
+import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,44 +30,49 @@ public class ApiPostController {
   private CalendarServiceImpl calendarService;
 
   @GetMapping("/post")
-//  @PreAuthorize("hasAuthority('user:write')")
-  public PostsResponse getPosts(@RequestParam(required = false, defaultValue = "0") int offset,
+  public ResponseEntity<PostsResponse> getPosts(
+      @RequestParam(required = false, defaultValue = "0") int offset,
       @RequestParam(required = false, defaultValue = "10") int limit,
       @RequestParam(required = false, defaultValue = "recent") String mode) {
-    return postsService.getPosts(offset, limit, mode);
+    return ResponseEntity.ok(postsService.getPosts(offset, limit, mode));
   }
 
   @GetMapping("/post/search")
-//  @PreAuthorize("hasAuthority('user:moderate')")
-  public PostsResponse getPostsByQuery(
+  public ResponseEntity<PostsResponse> getPostsByQuery(
       @RequestParam(required = false, defaultValue = "0") int offset,
       @RequestParam(required = false, defaultValue = "10") int limit,
       @RequestParam(required = false) String query) {
-    return postsService.getPostsByQuery(offset, limit, query);
-// TODO: 19.11.2021 запрос пустой ?
+    return ResponseEntity.ok(postsService.getPostsByQuery(offset, limit, query));
   }
 
   @GetMapping("/calendar")
-  public CalendarCountPostResponse getNumberOfPostByYears(
+  public ResponseEntity<CalendarCountPostResponse> getNumberOfPostByYears(
       @RequestParam(required = false) List<Integer> years) {
-    return calendarService.getNumberOfPostByYear(years);
+    CalendarCountPostResponse countPostResponse = calendarService.getNumberOfPostByYear(
+        years);
+    if (countPostResponse == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    return ResponseEntity.ok(countPostResponse);
   }
 
   @GetMapping("/post/byDate")
-  public PostsResponse getPostsByDates(@RequestParam int offset, @RequestParam int limit,
+  public ResponseEntity<PostsResponse> getPostsByDates(@RequestParam int offset,
+      @RequestParam int limit,
       @RequestParam String date) throws ParseException {
-    return postsService.getPostsByDates(offset, limit, date);
+    return ResponseEntity.ok(postsService.getPostsByDates(offset, limit, date));
   }
 
   @GetMapping("/post/byTag")
-  public PostsResponse getPostsByTag(@RequestParam int offset, @RequestParam int limit,
+  public ResponseEntity<PostsResponse> getPostsByTag(@RequestParam int offset,
+      @RequestParam int limit,
       @RequestParam String tag) {
-    return postsService.getPostsByTag(offset, limit, tag);
+    return ResponseEntity.ok(postsService.getPostsByTag(offset, limit, tag));
   }
 
   @GetMapping("/post/{id}")
-  public ResponseEntity<?> getPostById(@PathVariable int id) {
-    Optional<PostByIdResponse> post = Optional.ofNullable(postsService.getPostById(id));
+  public ResponseEntity<?> getPostById(@PathVariable int id, Principal principal) {
+    Optional<PostByIdResponse> post = Optional.ofNullable(postsService.getPostById(id, principal));
     if (post.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found!");
     }

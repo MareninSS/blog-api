@@ -2,7 +2,7 @@ package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.dao.PostRepository;
-import com.mareninss.blogapi.entity.ModerationStatusEnum;
+import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Post;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -32,7 +32,7 @@ public class CalendarServiceImpl implements CalendarService {
     IS_ACTIVE = 1;
     CURRENT_TIME = new Date();
     calendarCountPostResponse = new CalendarCountPostResponse();
-    MODERATION_STATUS = ModerationStatusEnum.ACCEPTED.toString();
+    MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
   }
 
   @Override

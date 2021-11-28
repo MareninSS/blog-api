@@ -2,8 +2,10 @@ package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.request.LoginRequest;
 import com.mareninss.blogapi.api.response.LoginResponse;
+import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
+import com.mareninss.blogapi.entity.ModerationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +20,8 @@ public class LoginServiceImpl implements LoginService {
 
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private PostRepository postRepository;
   private final AuthenticationManager authenticationManager;
 
   private final LoginResponse loginResponse;
@@ -38,9 +42,10 @@ public class LoginServiceImpl implements LoginService {
     com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(user.getUsername())
         .orElseThrow(() -> new UsernameNotFoundException(
             user.getUsername()));
-
+    int moderationCount = postRepository.getAllByModerationStatusAndModeratorIdIs(
+        ModerationStatus.NEW, null).size();
     loginResponse.setResult(true);
-    loginResponse.setUser(DtoMapper.mapToUserDto(currentUser));
+    loginResponse.setUser(DtoMapper.mapToUserDto(currentUser, moderationCount));
     return loginResponse;
   }
 }
