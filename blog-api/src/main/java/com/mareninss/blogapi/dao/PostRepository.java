@@ -6,11 +6,13 @@ import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import lombok.NonNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.Nullable;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
@@ -74,6 +76,28 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   @Query(value = "UPDATE blog_db.posts SET view_count = view_count + 1 WHERE id = :id", nativeQuery = true)
   int updateViewCountById(@Param(value = "id") int id);
 
+  @Query(value =
+      "select * from blog_db.posts where is_active = :isActive and moderation_status = :moderationStatus"
+          + " and moderator_id = :moderatorId", nativeQuery = true)
+  List<Post> getAllByIsActiveAndModerationStatusAndModeratorId(
+      @Param(value = "isActive") Byte isActive,
+      @Param(value = "moderationStatus") String moderationStatus,
+      @Param(value = "moderatorId") @Nullable Integer moderatorId, Pageable pageable);
+
+  @Query(value =
+      "select * from blog_db.posts where is_active = :isActive and moderation_status = :moderationStatus"
+          + " and moderator_id is null", nativeQuery = true)
+  List<Post> getAllByIsActiveAndModerationStatusAndModeratorId(
+      @Param(value = "isActive") Byte isActive,
+      @Param(value = "moderationStatus") String moderationStatus, Pageable pageable);
+
+  @Query(value =
+      "select * from blog_db.posts where is_active = :isActive and moderation_status = :moderationStatus "
+          + "and user_id = :authorId", nativeQuery = true)
+  List<Post> getAllByIsActiveAndModerationStatusAndAuthorIdIs(
+      @Param(value = "isActive") Byte isActive,
+      @Param(value = "moderationStatus") String moderationStatus,
+      @Param(value = "authorId") Integer authorId, Pageable pageable);
 }
 
 

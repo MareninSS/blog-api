@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -66,7 +67,6 @@ public class PostsServiceImpl implements PostsService {
     Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp);
     switch (mode) {
       case "recent":
-
         return getPostsWithModeOffsetLimit(page, recentMode);
       case "popular":
         return getPostsWithModeOffsetLimit(page, popularMode);
@@ -170,7 +170,7 @@ public class PostsServiceImpl implements PostsService {
         if (Objects.equals(currentUser.getId(), postById.get().getAuthorId())
             || currentUser.getIsModerator() == MODERATOR) {
           postByIdResponse.setViewCount(viewCount);//получаем
-        }else{
+        } else {
           postByIdResponse.setViewCount(viewCount);//получаем
           postRepository.updateViewCountById(id);//обновляем + 1
         }
@@ -188,7 +188,7 @@ public class PostsServiceImpl implements PostsService {
   }
 
 
-  public PostsResponse getPostsWithModeOffsetLimit(Pageable page,
+  private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
       Comparator<PostDto> comparator) {
 
     int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
@@ -205,6 +205,106 @@ public class PostsServiceImpl implements PostsService {
         .collect(Collectors.toList());
     postsResponse.setCount(count);
     postsResponse.setPosts(postsDto);
+    return postsResponse;
+  }
+
+  @Override
+  public PostsResponse getPostsForModeration(int offset, int limit, String status,
+      Principal principal) {
+
+    if (principal == null) {
+      return postsResponse;
+    } else {
+      User currentUser = userRepository.findByEmail(principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      switch (status) {
+        case "new":
+          Integer moderator = null;
+          return getPostsByModerationStatus(offset, limit, status.toUpperCase(Locale.ROOT),
+              moderator);
+        case "declined":
+        case "accepted":
+          return getPostsByModerationStatus(offset, limit, status.toUpperCase(Locale.ROOT),
+              currentUser.getId());
+      }
+      return postsResponse;
+    }
+  }
+
+  @Override
+  public PostsResponse getMyPosts(int offset, int limit, String status, Principal principal) {
+    if (principal == null) {
+      return postsResponse;
+    } else {
+      User currentUser = userRepository.findByEmail(principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      byte noActive = 0;
+      byte active = 1;
+      String moderationStatusNew = "NEW";
+      String moderationStatusDeclined = "DECLINED";
+      String moderationStatusAccepted = "ACCEPTED";
+      int authorId = currentUser.getId();
+
+      switch (status) {
+        case "inactive":
+          return getPostsWithStatusParams(noActive, offset, limit, moderationStatusNew,
+              authorId);
+        case "pending":
+          return getPostsWithStatusParams(active, offset, limit, moderationStatusNew,
+              authorId);
+        case "declined":
+          return getPostsWithStatusParams(active, offset, limit, moderationStatusDeclined,
+              authorId);
+        case "published":
+          return getPostsWithStatusParams(active, offset, limit, moderationStatusAccepted,
+              authorId);
+      }
+      return postsResponse;
+    }
+  }
+
+  private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
+      Integer moderatorId) {
+    Pageable page = PageRequest.of(offset, limit);
+    if (moderatorId == null) {
+      int count = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(IS_ACTIVE,
+          status, page).size();
+      List<PostDto> posts = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(
+              IS_ACTIVE, status, page)
+          .stream()
+          .map(DtoMapper::mapToPostDto)
+          .collect(Collectors.toList());
+      postsResponse.setCount(count);
+      postsResponse.setPosts(posts);
+      return postsResponse;
+    } else {
+      int count = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(IS_ACTIVE,
+          status,
+          moderatorId, page).size();
+
+      List<PostDto> posts = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(
+              IS_ACTIVE, status, moderatorId, page)
+          .stream()
+          .map(DtoMapper::mapToPostDto)
+          .collect(Collectors.toList());
+      postsResponse.setCount(count);
+      postsResponse.setPosts(posts);
+      return postsResponse;
+    }
+  }
+
+  private PostsResponse getPostsWithStatusParams(byte isActive, int offset, int limit,
+      String status, int authorId) {
+    Pageable page = PageRequest.of(offset, limit);
+    int count = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(isActive, status,
+        authorId, page).size();
+    List<PostDto> myposts = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(
+            isActive, status, authorId, page)
+        .stream()
+        .map(DtoMapper::mapToPostDto)
+        .collect(Collectors.toList());
+    postsResponse.setCount(count);
+    postsResponse.setPosts(myposts);
     return postsResponse;
   }
 }
