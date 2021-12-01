@@ -69,12 +69,11 @@ public class Post {
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
       CascadeType.DETACH})
   @JoinTable(name = "tag2post"
-      , joinColumns = @JoinColumn(name = "post_id")
-      , inverseJoinColumns = @JoinColumn(name = "tag_id"))
+      , joinColumns = {@JoinColumn(name = "post_id")}
+      , inverseJoinColumns = {@JoinColumn(name = "tag_id")})
   private List<Tag> tags;
 
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "post_id")
   private List<PostComment> postComments;
-
 }

@@ -16,4 +16,8 @@ public class ErrorDto {
   private String password;
 
   private String captcha;
+
+  private String title;
+
+  private String text;
 }

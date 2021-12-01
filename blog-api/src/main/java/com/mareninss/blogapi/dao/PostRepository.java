@@ -98,6 +98,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "isActive") Byte isActive,
       @Param(value = "moderationStatus") String moderationStatus,
       @Param(value = "authorId") Integer authorId, Pageable pageable);
+
+
 }
 
 

@@ -34,8 +34,8 @@ public class Tag {
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
       CascadeType.DETACH})
   @JoinTable(name = "tag2post"
-      , joinColumns = @JoinColumn(name = "tag_id")
-      , inverseJoinColumns = @JoinColumn(name = "post_id"))
+      , joinColumns = {@JoinColumn(name = "tag_id")}
+      , inverseJoinColumns = {@JoinColumn(name = "post_id")})
   private List<Post> posts;
 
 }
