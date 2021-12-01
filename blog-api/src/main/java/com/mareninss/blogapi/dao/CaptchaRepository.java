@@ -12,7 +12,7 @@ public interface CaptchaRepository extends JpaRepository<CaptchaCode, Integer> {
 
   @Modifying
   @Query(value =
-      "DELETE FROM blog_db.captcha_codes WHERE time < date_add(now(), interval - :time minute )"
+      "DELETE FROM captcha_codes WHERE time < date_add(now(), interval - :time minute )"
           + " limit 5;", nativeQuery = true)
   void deleteByTime(@Param(value = "time") int time);
 }
