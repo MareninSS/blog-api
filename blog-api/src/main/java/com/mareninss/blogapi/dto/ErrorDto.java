@@ -20,4 +20,5 @@ public class ErrorDto {
   private String title;
 
   private String text;
+
 }

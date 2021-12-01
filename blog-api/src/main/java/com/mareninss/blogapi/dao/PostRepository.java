@@ -16,11 +16,13 @@ import org.springframework.lang.Nullable;
 
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
+
   @Query(value = "SELECT * FROM posts where is_active = :isActive"
       + "  and time < :time and moderation_status = :moderationStatus", nativeQuery = true)
   List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
       @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
       @Param(value = "moderationStatus") String moderationStatus);
+
 
 
   @Query(value = "SELECT * FROM posts where is_active = :isActive"
@@ -37,12 +39,14 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "moderationStatus") String moderationStatus,
       @Param(value = "query") String query, Pageable pageable);
 
+
   @Query(value = "SELECT * FROM posts where is_active = :isActive"
       + "  and time < :time and moderation_status = :moderationStatus and YEAR(time) = :years", nativeQuery = true)
   List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_AcceptedWhereYearsEqual(
       @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
       @Param(value = "moderationStatus") String moderationStatus,
       @Param("years") List<Integer> years);
+
 
   @Query(value = "SELECT * FROM posts "
       + "where is_active = :isActive "
@@ -54,6 +58,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "moderationStatus") String moderationStatus, Pageable pageable);
 
   @Query(value = "SELECT posts.*\n"
+
       + "FROM posts\n"
       + "join tag2post on posts.id = tag2post.post_id\n"
       + "join tags on tags.id = tag2post.tag_id\n"
@@ -98,7 +103,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "isActive") Byte isActive,
       @Param(value = "moderationStatus") String moderationStatus,
       @Param(value = "authorId") Integer authorId, Pageable pageable);
-
 
 }
 

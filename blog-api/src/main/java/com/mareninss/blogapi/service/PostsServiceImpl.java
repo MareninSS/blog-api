@@ -1,6 +1,7 @@
 package com.mareninss.blogapi.service;
 
 
+
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostDataResponse;
@@ -44,12 +45,12 @@ public class PostsServiceImpl implements PostsService {
   @Autowired
   private TagRepository tagRepository;
 
-
   private final Byte IS_ACTIVE;
   private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
   private final PostByIdResponse postByIdResponse;
+
   private final PostDataResponse postDataResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -193,7 +194,6 @@ public class PostsServiceImpl implements PostsService {
     }
     return null;
   }
-
 
   private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
       Comparator<PostDto> comparator) {

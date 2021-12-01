@@ -1,9 +1,11 @@
 package com.mareninss.blogapi.controller;
 
+
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostDataResponse;
+
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
 import com.mareninss.blogapi.service.PostsServiceImpl;
@@ -82,6 +84,7 @@ public class ApiPostController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found!");
     }
     return new ResponseEntity<>(post, HttpStatus.OK);
+
   }
 
   @GetMapping("/post/moderation")
@@ -107,6 +110,7 @@ public class ApiPostController {
   public ResponseEntity<PostDataResponse> addPost(@RequestBody PostDataRequest request,
       Principal principal) {
     return ResponseEntity.ok(postsService.addPost(request, principal));
+
   }
 }
 
