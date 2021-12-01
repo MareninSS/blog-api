@@ -1,7 +1,11 @@
 package com.mareninss.blogapi.controller;
 
+
+import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
+import com.mareninss.blogapi.api.response.PostDataResponse;
+
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
 import com.mareninss.blogapi.service.PostsServiceImpl;
@@ -12,9 +16,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,6 +84,33 @@ public class ApiPostController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found!");
     }
     return new ResponseEntity<>(post, HttpStatus.OK);
+
+  }
+
+  @GetMapping("/post/moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  public ResponseEntity<PostsResponse> getPostsForModeration(
+      @RequestParam(defaultValue = "0") int offset,
+      @RequestParam(defaultValue = "10") int limit,
+      @RequestParam String status, Principal principal) {
+    return ResponseEntity.ok(postsService.getPostsForModeration(offset, limit, status, principal));
+  }
+
+  @GetMapping("/post/my")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<PostsResponse> getMyPosts(
+      @RequestParam(defaultValue = "0") int offset,
+      @RequestParam(defaultValue = "10") int limit,
+      @RequestParam String status, Principal principal) {
+    return ResponseEntity.ok(postsService.getMyPosts(offset, limit, status, principal));
+  }
+
+  @PostMapping("/post")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<PostDataResponse> addPost(@RequestBody PostDataRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(postsService.addPost(request, principal));
+
   }
 }
 

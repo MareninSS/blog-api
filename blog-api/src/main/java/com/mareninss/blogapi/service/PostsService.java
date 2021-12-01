@@ -1,7 +1,10 @@
 package com.mareninss.blogapi.service;
 
 
+
+import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
+import com.mareninss.blogapi.api.response.PostDataResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import java.security.Principal;
 import java.text.ParseException;
@@ -19,4 +22,12 @@ public interface PostsService {
   PostsResponse getPostsByTag(int offset, int limit, String tag);
 
   PostByIdResponse getPostById(int id, Principal principal);
+
+  PostsResponse getPostsForModeration(int offset, int limit, String status,
+      Principal principal);
+
+  PostsResponse getMyPosts(int offset, int limit, String status,
+      Principal principal);
+
+  PostDataResponse addPost(PostDataRequest dataRequest, Principal principal);
 }

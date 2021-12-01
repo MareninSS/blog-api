@@ -69,30 +69,11 @@ public class Post {
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH,
       CascadeType.DETACH})
   @JoinTable(name = "tag2post"
-      , joinColumns = @JoinColumn(name = "post_id")
-      , inverseJoinColumns = @JoinColumn(name = "tag_id"))
+      , joinColumns = {@JoinColumn(name = "post_id")}
+      , inverseJoinColumns = {@JoinColumn(name = "tag_id")})
   private List<Tag> tags;
 
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "post_id")
   private List<PostComment> postComments;
-
-  @Override
-  public String toString() {
-    return "Post{" +
-        "id=" + id +
-        ", isActive=" + isActive +
-        ", moderationStatus=" + moderationStatus +
-        ", moderatorId=" + moderatorId +
-        ", userId=" + userId +
-        ", time=" + time +
-        ", title='" + title + '\'' +
-        ", text='" + text + '\'' +
-        ", viewCount=" + viewCount +
-        ", user=" + user.getName() +
-        ", postVotes=" + postVotes +
-        ", tags=" + tags +
-        ", postComments=" + postComments.toString() +
-        '}';
-  }
 }

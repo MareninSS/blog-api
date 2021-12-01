@@ -12,8 +12,6 @@ public class PostDto {
 
   private long timestamp;
 
-  private UserPostDto user;
-
   private String title;
 
   private String announce;
@@ -25,5 +23,7 @@ public class PostDto {
   private Integer commentCount;
 
   private Integer viewCount;
+
+  private UserPostDto user;
 
 }

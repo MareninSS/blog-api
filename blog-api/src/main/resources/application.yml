@@ -10,13 +10,10 @@ spring:
 
   flyway:
     enabled: true
-    user: root
-    password: an293gls
-    schemas: blog_db
-    url: jdbc:mysql://localhost:3306/blog_db?useSSL=false
     locations: filesystem:src/main/resources/db/migration
     create-schemas: false
     baseline-on-migrate: on
+
 
 blog:
   title: DevPub
