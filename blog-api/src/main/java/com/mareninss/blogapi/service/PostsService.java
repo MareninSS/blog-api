@@ -30,4 +30,6 @@ public interface PostsService {
       Principal principal);
 
   PostDataResponse addPost(PostDataRequest dataRequest, Principal principal);
+
+  PostDataResponse updatePost(int id, PostDataRequest dataRequest, Principal principal);
 }

@@ -1,7 +1,6 @@
 package com.mareninss.blogapi.service;
 
 
-
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostDataResponse;
@@ -42,15 +41,12 @@ public class PostsServiceImpl implements PostsService {
 
   @Autowired
   private UserRepository userRepository;
-  @Autowired
-  private TagRepository tagRepository;
 
   private final Byte IS_ACTIVE;
   private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
   private final PostByIdResponse postByIdResponse;
-
   private final PostDataResponse postDataResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -195,6 +191,7 @@ public class PostsServiceImpl implements PostsService {
     return null;
   }
 
+
   private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
       Comparator<PostDto> comparator) {
 
@@ -271,6 +268,7 @@ public class PostsServiceImpl implements PostsService {
   }
 
   @Override
+  @Transactional
   public PostDataResponse addPost(PostDataRequest dataRequest, Principal principal) {
     ErrorDto errorDto = new ErrorDto();
     if (principal == null) {
@@ -287,41 +285,19 @@ public class PostsServiceImpl implements PostsService {
       postDataResponse.setErrors(errorDto);
       return postDataResponse;
     }
-    User currentUser = userRepository.findByEmail(principal.getName())
-        .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-
-    Post post = new Post();
-    post.setIsActive(dataRequest.getActive());
-    post.setModerationStatus(ModerationStatus.NEW);
-    post.setModeratorId(null);
-    post.setAuthorId(currentUser.getId());
-
-    long publishTime = dataRequest.getTimestamp();
-    long currentTime = new Date().getTime();
-    if (publishTime <= currentTime) {
-      post.setTime(new Date(currentTime));
-    } else {
-      post.setTime(new Date(publishTime));
-    }
-
-    List<Tag> tags = new ArrayList<>();
-    dataRequest.getTags().forEach(tagRequest -> {
-      Tag tag = new Tag();
-      tag.setName(tagRequest);
-      tags.add(tag);
-    });
-    post.setTitle(dataRequest.getTitle());
-    post.setText(dataRequest.getText());
-    post.setViewCount(0);
-    post.setTags(tags);
-
-    postRepository.saveAndFlush(post);
-
-    postDataResponse.setResult(true);
-    postDataResponse.setErrors(null);
-    return postDataResponse;
+    return savePost(dataRequest, principal);
   }
 
+  @Override
+  @Transactional
+  public PostDataResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
+    Optional<Post> post = postRepository.findById(id);
+    if (post.isPresent()) {
+      return savePostById(dataRequest, principal, post.get());
+    } else {
+      return null;
+    }
+  }
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
       Integer moderatorId) {
@@ -371,5 +347,90 @@ public class PostsServiceImpl implements PostsService {
   private boolean hasErrors(ErrorDto errors) {
     return errors.getName() != null || errors.getPassword() != null || errors.getEmail() != null
         || errors.getCaptcha() != null || errors.getText() != null || errors.getTitle() != null;
+  }
+
+  private PostDataResponse savePost(PostDataRequest dataRequest, Principal principal) {
+    if (principal == null) {
+      postDataResponse.setResult(false);
+    } else {
+      User currentUser = userRepository.findByEmail(principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Post post = new Post();
+      post.setIsActive(dataRequest.getActive());
+      post.setModerationStatus(ModerationStatus.NEW);
+      post.setModeratorId(null);
+      post.setAuthorId(currentUser.getId());
+
+      long publishTime = dataRequest.getTimestamp();
+      long currentTime = new Date().getTime();
+      if (publishTime <= currentTime) {
+        post.setTime(new Date(currentTime));
+      } else {
+        post.setTime(new Date(publishTime));
+      }
+
+      List<Tag> tags = new ArrayList<>();
+      dataRequest.getTags().forEach(tagRequest -> {
+        Tag tag = new Tag();
+        tag.setName(tagRequest);
+        tags.add(tag);
+      });
+      post.setTitle(dataRequest.getTitle());
+      post.setText(dataRequest.getText());
+      post.setViewCount(0);
+      post.setTags(tags);
+
+      postRepository.saveAndFlush(post);
+
+      postDataResponse.setResult(true);
+      postDataResponse.setErrors(null);
+    }
+    return postDataResponse;
+  }
+
+  private PostDataResponse savePostById(PostDataRequest dataRequest, Principal principal,
+      Post postById) {
+    byte moderator = 1;
+    if (principal == null) {
+      postDataResponse.setResult(false);
+    } else {
+      User currentUser = userRepository.findByEmail(principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Post post = new Post();
+      post.setIsActive(dataRequest.getActive());
+
+      if (currentUser.getIsModerator() != moderator) {
+        post.setModerationStatus(ModerationStatus.NEW);
+      } else {
+        post.setModerationStatus(postById.getModerationStatus());
+      }
+      post.setModeratorId(null);
+      post.setAuthorId(currentUser.getId());
+
+      long publishTime = dataRequest.getTimestamp();
+      long currentTime = new Date().getTime();
+      if (publishTime <= currentTime) {
+        post.setTime(new Date(currentTime));
+      } else {
+        post.setTime(new Date(publishTime));
+      }
+
+      List<Tag> tags = new ArrayList<>();
+      dataRequest.getTags().forEach(tagRequest -> {
+        Tag tag = new Tag();
+        tag.setName(tagRequest);
+        tags.add(tag);
+      });
+      post.setTitle(dataRequest.getTitle());
+      post.setText(dataRequest.getText());
+      post.setViewCount(0);
+      post.setTags(tags);
+
+      postRepository.saveAndFlush(post);
+
+      postDataResponse.setResult(true);
+      postDataResponse.setErrors(null);
+    }
+    return postDataResponse;
   }
 }
