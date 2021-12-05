@@ -144,18 +144,15 @@ public class PostsServiceImpl implements PostsService {
   @Override
   @Transactional
   public PostByIdResponse getPostById(int id, Principal principal) {
-    final boolean isActive = true;
     final int LIKE = 1;
     final int DISLIKE = -1;
     final int MODERATOR = 1;
 
-    Optional<Post> postById = postRepository
-        .findPostByIdAndIsActiveAndTimeIsLessThanAndModerationStatus(id, IS_ACTIVE, CURRENT_TIME,
-            ModerationStatus.ACCEPTED);
+    Optional<Post> postById = postRepository.findById(id);
     if (postById.isPresent()) {
       postByIdResponse.setId(postById.get().getId());
       postByIdResponse.setTimestamp(postById.get().getTime().getTime() / 1000);
-      postByIdResponse.setActive(isActive);
+      postByIdResponse.setActive(postById.get().getIsActive() == 1);
       postByIdResponse.setUser(DtoMapper.mapToUserPostDto(postById.get().getUser()));
       postByIdResponse.setTitle(postById.get().getTitle());
       postByIdResponse.setText(postById.get().getText());
@@ -363,11 +360,11 @@ public class PostsServiceImpl implements PostsService {
 
       long publishTime = dataRequest.getTimestamp();
       long currentTime = new Date().getTime();
+
       if (publishTime <= currentTime) {
         post.setTime(new Date(currentTime));
-      } else {
-        post.setTime(new Date(publishTime));
       }
+      post.setTime(new Date(publishTime * 1000));
 
       List<Tag> tags = new ArrayList<>();
       dataRequest.getTags().forEach(tagRequest -> {
@@ -397,6 +394,7 @@ public class PostsServiceImpl implements PostsService {
       User currentUser = userRepository.findByEmail(principal.getName())
           .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
       Post post = new Post();
+      post.setId(postById.getId());
       post.setIsActive(dataRequest.getActive());
 
       if (currentUser.getIsModerator() != moderator) {
@@ -407,13 +405,12 @@ public class PostsServiceImpl implements PostsService {
       post.setModeratorId(null);
       post.setAuthorId(currentUser.getId());
 
-      long publishTime = dataRequest.getTimestamp();
+      long publishedTime = dataRequest.getTimestamp();
       long currentTime = new Date().getTime();
-      if (publishTime <= currentTime) {
+      if (publishedTime <= currentTime) {
         post.setTime(new Date(currentTime));
-      } else {
-        post.setTime(new Date(publishTime));
       }
+      post.setTime(new Date(publishedTime * 1000));
 
       List<Tag> tags = new ArrayList<>();
       dataRequest.getTags().forEach(tagRequest -> {
