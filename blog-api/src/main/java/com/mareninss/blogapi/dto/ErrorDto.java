@@ -21,4 +21,7 @@ public class ErrorDto {
 
   private String text;
 
+  private String image;
+
+  private String extension;
 }
