@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterResponse {
+public class ErrorsResponse {
 
   private boolean result;
   @JsonInclude(JsonInclude.Include.NON_NULL)

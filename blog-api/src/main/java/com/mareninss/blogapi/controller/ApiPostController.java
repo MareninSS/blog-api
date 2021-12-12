@@ -3,8 +3,8 @@ package com.mareninss.blogapi.controller;
 
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
+import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
-import com.mareninss.blogapi.api.response.PostDataResponse;
 
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
@@ -108,7 +108,7 @@ public class ApiPostController {
 
   @PostMapping("/post")
   @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
-  public ResponseEntity<PostDataResponse> addPost(@RequestBody PostDataRequest request,
+  public ResponseEntity<ErrorsResponse> addPost(@RequestBody PostDataRequest request,
       Principal principal) {
     return ResponseEntity.ok(postsService.addPost(request, principal));
 
@@ -116,7 +116,7 @@ public class ApiPostController {
 
   @PutMapping("/post/{id}")
   @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
-  public ResponseEntity<PostDataResponse> updatePost(@PathVariable int id,
+  public ResponseEntity<ErrorsResponse> updatePost(@PathVariable int id,
       @RequestBody PostDataRequest request,
       Principal principal) {
     return ResponseEntity.ok(postsService.updatePost(id, request, principal));

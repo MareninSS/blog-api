@@ -2,8 +2,8 @@ package com.mareninss.blogapi.service;
 
 
 import com.mareninss.blogapi.api.request.PostDataRequest;
+import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
-import com.mareninss.blogapi.api.response.PostDataResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.UserRepository;
@@ -46,7 +46,7 @@ public class PostsServiceImpl implements PostsService {
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
   private final PostByIdResponse postByIdResponse;
-  private final PostDataResponse postDataResponse;
+  private final ErrorsResponse postDataResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -56,7 +56,7 @@ public class PostsServiceImpl implements PostsService {
     CURRENT_TIME = new Date();
     postsResponse = new PostsResponse();
     postByIdResponse = new PostByIdResponse();
-    postDataResponse = new PostDataResponse();
+    postDataResponse = new ErrorsResponse();
     MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
   }
 
@@ -265,7 +265,7 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   @Transactional
-  public PostDataResponse addPost(PostDataRequest dataRequest, Principal principal) {
+  public ErrorsResponse addPost(PostDataRequest dataRequest, Principal principal) {
     ErrorDto errorDto = new ErrorDto();
     if (principal == null) {
       postDataResponse.setResult(false);
@@ -286,7 +286,7 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   @Transactional
-  public PostDataResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
+  public ErrorsResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
     Optional<Post> post = postRepository.findById(id);
     if (post.isPresent()) {
       return savePostById(dataRequest, principal, post.get());
@@ -345,7 +345,7 @@ public class PostsServiceImpl implements PostsService {
         || errors.getCaptcha() != null || errors.getText() != null || errors.getTitle() != null;
   }
 
-  private PostDataResponse savePost(PostDataRequest dataRequest, Principal principal) {
+  private ErrorsResponse savePost(PostDataRequest dataRequest, Principal principal) {
     if (principal == null) {
       postDataResponse.setResult(false);
     } else {
@@ -384,7 +384,7 @@ public class PostsServiceImpl implements PostsService {
     return postDataResponse;
   }
 
-  private PostDataResponse savePostById(PostDataRequest dataRequest, Principal principal,
+  private ErrorsResponse savePostById(PostDataRequest dataRequest, Principal principal,
       Post postById) {
     byte moderator = 1;
     if (principal == null) {
