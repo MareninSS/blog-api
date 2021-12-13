@@ -1,6 +1,7 @@
 package com.mareninss.blogapi.service;
 
 
+import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
@@ -20,8 +21,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -428,5 +431,43 @@ public class PostsServiceImpl implements PostsService {
       postDataResponse.setErrors(null);
     }
     return postDataResponse;
+  }
+
+  @Override
+  @Transactional
+  public Map<String, Boolean> moderatePost(ModerationPostRequest request, Principal principal) {
+    Map<String, Boolean> result = new HashMap<>();
+    if (principal != null && request != null) {
+      com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
+              principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Optional<Post> post = postRepository.findById(request.getPostId());
+
+      if (post.isPresent()) {
+        Post moderatedPost = new Post();
+        moderatedPost.setId(post.get().getId());
+        moderatedPost.setIsActive(post.get().getIsActive());
+        switch (request.getDecision()) {
+          case "accept":
+            moderatedPost.setModerationStatus(ModerationStatus.ACCEPTED);
+            moderatedPost.setModeratorId(currentUser.getId());
+            break;
+          case "decline":
+            moderatedPost.setModerationStatus(ModerationStatus.DECLINED);
+            moderatedPost.setModeratorId(currentUser.getId());
+            break;
+        }
+        moderatedPost.setAuthorId(post.get().getAuthorId());
+        moderatedPost.setTime(post.get().getTime());
+        moderatedPost.setTitle(post.get().getTitle());
+        moderatedPost.setText(post.get().getText());
+        moderatedPost.setViewCount(post.get().getViewCount());
+        postRepository.saveAndFlush(moderatedPost);
+        result.put("result", true);
+      } else {
+        result.put("result", false);
+      }
+    }
+    return result;
   }
 }

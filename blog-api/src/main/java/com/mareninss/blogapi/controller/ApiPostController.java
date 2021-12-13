@@ -1,6 +1,7 @@
 package com.mareninss.blogapi.controller;
 
 
+import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
@@ -12,6 +13,7 @@ import com.mareninss.blogapi.service.PostsServiceImpl;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -120,6 +122,13 @@ public class ApiPostController {
       @RequestBody PostDataRequest request,
       Principal principal) {
     return ResponseEntity.ok(postsService.updatePost(id, request, principal));
+  }
+
+  @PostMapping("/moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  public ResponseEntity<Map<String, Boolean>> moderatePost(
+      @RequestBody ModerationPostRequest request, Principal principal) {
+    return ResponseEntity.ok(postsService.moderatePost(request, principal));
   }
 }
 

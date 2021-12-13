@@ -12,6 +12,7 @@ import java.security.Principal;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,6 +33,7 @@ public class ApiCommentController {
   }
 
   @PostMapping("/api/comment")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
   public ResponseEntity<?> addComment(@RequestBody CommentRequest commentRequest,
       Principal principal) {
     Optional<PostComment> comment = commentRepository.findById(commentRequest.getParentId());
