@@ -1,7 +1,7 @@
 package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.request.RegisterRequest;
-import com.mareninss.blogapi.api.response.RegisterResponse;
+import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.dao.CaptchaRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.ErrorDto;
@@ -23,14 +23,14 @@ public class RegisterServiceImpl implements RegisterService {
   @Autowired
   private CaptchaRepository captchaRepository;
 
-  private final RegisterResponse registerResponse;
+  private final ErrorsResponse errorsResponse;
 
   public RegisterServiceImpl() {
-    registerResponse = new RegisterResponse();
+    errorsResponse = new ErrorsResponse();
   }
 
   @Override
-  public RegisterResponse createUser(RegisterRequest registerRequest) {
+  public ErrorsResponse createUser(RegisterRequest registerRequest) {
     final Integer notModerator = 0;
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     ErrorDto errorDto = new ErrorDto();
@@ -54,9 +54,9 @@ public class RegisterServiceImpl implements RegisterService {
       errorDto.setCaptcha("Код с картинки введен неверно");
     }
     if (hasErrors(errorDto)) {
-      registerResponse.setResult(false);
-      registerResponse.setErrors(errorDto);
-      return registerResponse;
+      errorsResponse.setResult(false);
+      errorsResponse.setErrors(errorDto);
+      return errorsResponse;
     }
 
     User userNew = new User();
@@ -65,11 +65,11 @@ public class RegisterServiceImpl implements RegisterService {
     userNew.setName(registerRequest.getName());
     userNew.setRegTime(new Date());
     userNew.setPassword(bCryptPasswordEncoder.encode(registerRequest.getPassword()));
-    registerResponse.setResult(true);
+    errorsResponse.setResult(true);
 
     userRepository.saveAndFlush(userNew);
 
-    return registerResponse;
+    return errorsResponse;
   }
 
   private boolean hasErrors(ErrorDto errors) {

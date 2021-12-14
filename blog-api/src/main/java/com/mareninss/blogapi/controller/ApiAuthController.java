@@ -5,18 +5,18 @@ import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.api.response.LoginResponse;
-import com.mareninss.blogapi.api.response.RegisterResponse;
-import com.mareninss.blogapi.dto.ErrorDto;
+import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.service.AuthStatusServiceImpl;
 import com.mareninss.blogapi.service.CaptchaService;
 import com.mareninss.blogapi.service.LoginService;
 import com.mareninss.blogapi.service.RegisterService;
 import java.security.Principal;
-import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,7 +54,16 @@ public class ApiAuthController {
   }
 
   @PostMapping("/api/auth/register")
-  public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest registerRequest) {
+  public ResponseEntity<ErrorsResponse> register(@RequestBody RegisterRequest registerRequest) {
     return new ResponseEntity<>(registerService.createUser(registerRequest), HttpStatus.OK);
+  }
+
+  @GetMapping("/api/auth/logout")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public Map<String, Boolean> logout() {
+    Map<String, Boolean> result = new HashMap<>();
+    result.put("result", true);
+    return result;
+
   }
 }

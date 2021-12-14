@@ -23,7 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private final UserDetailsService userDetailsService;
 
   @Autowired
-  public SecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
+  public SecurityConfig(
+      @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
     this.userDetailsService = userDetailsService;
   }
 
@@ -36,8 +37,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .anyRequest()
         .authenticated()
         .and()
-        .formLogin().disable()//Форма отключена, но на "/" вылазит. Уточнить почему?
-        .httpBasic().disable();
+        .formLogin().disable()
+        .httpBasic().disable()
+        .logout()
+        .logoutSuccessUrl("/**")
+        .clearAuthentication(true);
   }
 
   @Bean

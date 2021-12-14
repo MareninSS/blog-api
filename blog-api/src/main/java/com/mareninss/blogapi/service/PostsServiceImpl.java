@@ -2,7 +2,9 @@ package com.mareninss.blogapi.service;
 
 
 
+import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
+import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostDataResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
@@ -22,8 +24,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,14 +47,13 @@ public class PostsServiceImpl implements PostsService {
 
   @Autowired
   private UserRepository userRepository;
-  @Autowired
-  private TagRepository tagRepository;
 
   private final Byte IS_ACTIVE;
   private final String MODERATION_STATUS;
   private final Date CURRENT_TIME;
   private final PostsResponse postsResponse;
   private final PostByIdResponse postByIdResponse;
+  private final ErrorsResponse postDataResponse;
 
   private final PostDataResponse postDataResponse;
 
@@ -61,7 +65,7 @@ public class PostsServiceImpl implements PostsService {
     CURRENT_TIME = new Date();
     postsResponse = new PostsResponse();
     postByIdResponse = new PostByIdResponse();
-    postDataResponse = new PostDataResponse();
+    postDataResponse = new ErrorsResponse();
     MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
   }
 
@@ -148,18 +152,15 @@ public class PostsServiceImpl implements PostsService {
   @Override
   @Transactional
   public PostByIdResponse getPostById(int id, Principal principal) {
-    final boolean isActive = true;
     final int LIKE = 1;
     final int DISLIKE = -1;
     final int MODERATOR = 1;
 
-    Optional<Post> postById = postRepository
-        .findPostByIdAndIsActiveAndTimeIsLessThanAndModerationStatus(id, IS_ACTIVE, CURRENT_TIME,
-            ModerationStatus.ACCEPTED);
+    Optional<Post> postById = postRepository.findById(id);
     if (postById.isPresent()) {
       postByIdResponse.setId(postById.get().getId());
       postByIdResponse.setTimestamp(postById.get().getTime().getTime() / 1000);
-      postByIdResponse.setActive(isActive);
+      postByIdResponse.setActive(postById.get().getIsActive() == 1);
       postByIdResponse.setUser(DtoMapper.mapToUserPostDto(postById.get().getUser()));
       postByIdResponse.setTitle(postById.get().getTitle());
       postByIdResponse.setText(postById.get().getText());
@@ -271,7 +272,8 @@ public class PostsServiceImpl implements PostsService {
   }
 
   @Override
-  public PostDataResponse addPost(PostDataRequest dataRequest, Principal principal) {
+  @Transactional
+  public ErrorsResponse addPost(PostDataRequest dataRequest, Principal principal) {
     ErrorDto errorDto = new ErrorDto();
     if (principal == null) {
       postDataResponse.setResult(false);
@@ -287,41 +289,19 @@ public class PostsServiceImpl implements PostsService {
       postDataResponse.setErrors(errorDto);
       return postDataResponse;
     }
-    User currentUser = userRepository.findByEmail(principal.getName())
-        .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-
-    Post post = new Post();
-    post.setIsActive(dataRequest.getActive());
-    post.setModerationStatus(ModerationStatus.NEW);
-    post.setModeratorId(null);
-    post.setAuthorId(currentUser.getId());
-
-    long publishTime = dataRequest.getTimestamp();
-    long currentTime = new Date().getTime();
-    if (publishTime <= currentTime) {
-      post.setTime(new Date(currentTime));
-    } else {
-      post.setTime(new Date(publishTime));
-    }
-
-    List<Tag> tags = new ArrayList<>();
-    dataRequest.getTags().forEach(tagRequest -> {
-      Tag tag = new Tag();
-      tag.setName(tagRequest);
-      tags.add(tag);
-    });
-    post.setTitle(dataRequest.getTitle());
-    post.setText(dataRequest.getText());
-    post.setViewCount(0);
-    post.setTags(tags);
-
-    postRepository.saveAndFlush(post);
-
-    postDataResponse.setResult(true);
-    postDataResponse.setErrors(null);
-    return postDataResponse;
+    return savePost(dataRequest, principal);
   }
 
+  @Override
+  @Transactional
+  public ErrorsResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
+    Optional<Post> post = postRepository.findById(id);
+    if (post.isPresent()) {
+      return savePostById(dataRequest, principal, post.get());
+    } else {
+      return null;
+    }
+  }
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
       Integer moderatorId) {
@@ -371,5 +351,129 @@ public class PostsServiceImpl implements PostsService {
   private boolean hasErrors(ErrorDto errors) {
     return errors.getName() != null || errors.getPassword() != null || errors.getEmail() != null
         || errors.getCaptcha() != null || errors.getText() != null || errors.getTitle() != null;
+  }
+  
+  
+  private ErrorsResponse savePost(PostDataRequest dataRequest, Principal principal) {
+    if (principal == null) {
+      postDataResponse.setResult(false);
+    } else {
+      User currentUser = userRepository.findByEmail(principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Post post = new Post();
+      post.setIsActive(dataRequest.getActive());
+      post.setModerationStatus(ModerationStatus.NEW);
+      post.setModeratorId(null);
+      post.setAuthorId(currentUser.getId());
+
+      long publishTime = dataRequest.getTimestamp();
+      long currentTime = new Date().getTime();
+
+      if (publishTime <= currentTime) {
+        post.setTime(new Date(currentTime));
+      }
+      post.setTime(new Date(publishTime * 1000));
+
+      List<Tag> tags = new ArrayList<>();
+      dataRequest.getTags().forEach(tagRequest -> {
+        Tag tag = new Tag();
+        tag.setName(tagRequest);
+        tags.add(tag);
+      });
+      post.setTitle(dataRequest.getTitle());
+      post.setText(dataRequest.getText());
+      post.setViewCount(0);
+      post.setTags(tags);
+
+      postRepository.saveAndFlush(post);
+
+      postDataResponse.setResult(true);
+      postDataResponse.setErrors(null);
+    }
+    return postDataResponse;
+  }
+
+  private ErrorsResponse savePostById(PostDataRequest dataRequest, Principal principal,
+      Post postById) {
+    byte moderator = 1;
+    if (principal == null) {
+      postDataResponse.setResult(false);
+    } else {
+      User currentUser = userRepository.findByEmail(principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Post post = new Post();
+      post.setId(postById.getId());
+      post.setIsActive(dataRequest.getActive());
+
+      if (currentUser.getIsModerator() != moderator) {
+        post.setModerationStatus(ModerationStatus.NEW);
+      } else {
+        post.setModerationStatus(postById.getModerationStatus());
+      }
+      post.setModeratorId(null);
+      post.setAuthorId(currentUser.getId());
+
+      long publishedTime = dataRequest.getTimestamp();
+      long currentTime = new Date().getTime();
+      if (publishedTime <= currentTime) {
+        post.setTime(new Date(currentTime));
+      }
+      post.setTime(new Date(publishedTime * 1000));
+
+      List<Tag> tags = new ArrayList<>();
+      dataRequest.getTags().forEach(tagRequest -> {
+        Tag tag = new Tag();
+        tag.setName(tagRequest);
+        tags.add(tag);
+      });
+      post.setTitle(dataRequest.getTitle());
+      post.setText(dataRequest.getText());
+      post.setViewCount(0);
+      post.setTags(tags);
+
+      postRepository.saveAndFlush(post);
+
+      postDataResponse.setResult(true);
+      postDataResponse.setErrors(null);
+    }
+    return postDataResponse;
+  }
+
+  @Override
+  @Transactional
+  public Map<String, Boolean> moderatePost(ModerationPostRequest request, Principal principal) {
+    Map<String, Boolean> result = new HashMap<>();
+    if (principal != null && request != null) {
+      com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
+              principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Optional<Post> post = postRepository.findById(request.getPostId());
+
+      if (post.isPresent()) {
+        Post moderatedPost = new Post();
+        moderatedPost.setId(post.get().getId());
+        moderatedPost.setIsActive(post.get().getIsActive());
+        switch (request.getDecision()) {
+          case "accept":
+            moderatedPost.setModerationStatus(ModerationStatus.ACCEPTED);
+            moderatedPost.setModeratorId(currentUser.getId());
+            break;
+          case "decline":
+            moderatedPost.setModerationStatus(ModerationStatus.DECLINED);
+            moderatedPost.setModeratorId(currentUser.getId());
+            break;
+        }
+        moderatedPost.setAuthorId(post.get().getAuthorId());
+        moderatedPost.setTime(post.get().getTime());
+        moderatedPost.setTitle(post.get().getTitle());
+        moderatedPost.setText(post.get().getText());
+        moderatedPost.setViewCount(post.get().getViewCount());
+        postRepository.saveAndFlush(moderatedPost);
+        result.put("result", true);
+      } else {
+        result.put("result", false);
+      }
+    }
+    return result;
   }
 }

@@ -1,10 +1,13 @@
 package com.mareninss.blogapi.controller;
 
 
+
+import com.mareninss.blogapi.api.request.ModerationPostRequest;
+
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
+import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
-import com.mareninss.blogapi.api.response.PostDataResponse;
 
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
@@ -12,6 +15,7 @@ import com.mareninss.blogapi.service.PostsServiceImpl;
 import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +24,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -107,10 +113,24 @@ public class ApiPostController {
 
   @PostMapping("/post")
   @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
-  public ResponseEntity<PostDataResponse> addPost(@RequestBody PostDataRequest request,
+  public ResponseEntity<ErrorsResponse> addPost(@RequestBody PostDataRequest request,
       Principal principal) {
     return ResponseEntity.ok(postsService.addPost(request, principal));
+  }
 
+  @PutMapping("/post/{id}")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<ErrorsResponse> updatePost(@PathVariable int id,
+      @RequestBody PostDataRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(postsService.updatePost(id, request, principal));
+  }
+
+  @PostMapping("/moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  public ResponseEntity<Map<String, Boolean>> moderatePost(
+      @RequestBody ModerationPostRequest request, Principal principal) {
+    return ResponseEntity.ok(postsService.moderatePost(request, principal));
   }
 }
 
