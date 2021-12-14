@@ -1,7 +1,9 @@
 package com.mareninss.blogapi.controller;
 
 
+
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
+
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -113,7 +116,6 @@ public class ApiPostController {
   public ResponseEntity<ErrorsResponse> addPost(@RequestBody PostDataRequest request,
       Principal principal) {
     return ResponseEntity.ok(postsService.addPost(request, principal));
-
   }
 
   @PutMapping("/post/{id}")
