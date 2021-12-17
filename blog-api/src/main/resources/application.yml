@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/blog_db?useSSL=false
+    url: jdbc:mysql://localhost:3306/blog_db?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
     username: root
     password: an293gls
 
