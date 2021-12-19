@@ -1,12 +1,15 @@
 package com.mareninss.blogapi.service;
 
 
+
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
+import com.mareninss.blogapi.api.response.PostDataResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
+import com.mareninss.blogapi.dao.TagRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.ErrorDto;
@@ -24,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,6 +54,8 @@ public class PostsServiceImpl implements PostsService {
   private final PostsResponse postsResponse;
   private final PostByIdResponse postByIdResponse;
   private final ErrorsResponse postDataResponse;
+
+  private final PostDataResponse postDataResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -189,7 +195,6 @@ public class PostsServiceImpl implements PostsService {
     }
     return null;
   }
-
 
   private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
       Comparator<PostDto> comparator) {
@@ -347,7 +352,8 @@ public class PostsServiceImpl implements PostsService {
     return errors.getName() != null || errors.getPassword() != null || errors.getEmail() != null
         || errors.getCaptcha() != null || errors.getText() != null || errors.getTitle() != null;
   }
-
+  
+  
   private ErrorsResponse savePost(PostDataRequest dataRequest, Principal principal) {
     if (principal == null) {
       postDataResponse.setResult(false);
