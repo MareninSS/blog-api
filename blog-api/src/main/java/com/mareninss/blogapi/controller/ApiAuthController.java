@@ -8,6 +8,7 @@ import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.LoginResponse;
+
 import com.mareninss.blogapi.service.AuthStatusServiceImpl;
 import com.mareninss.blogapi.service.CaptchaService;
 import com.mareninss.blogapi.service.LoginService;
@@ -69,6 +70,7 @@ public class ApiAuthController {
     Map<String, Boolean> result = new HashMap<>();
     result.put("result", true);
     return result;
+
   }
 
   @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,6 +97,7 @@ public class ApiAuthController {
   public ResponseEntity<Map<String, Boolean>> recoverPassword(
       @RequestBody RecoverRequest email) {
     return ResponseEntity.ok(registerService.recoverPass(email));
+
   }
 }
 

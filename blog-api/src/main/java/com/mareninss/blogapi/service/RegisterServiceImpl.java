@@ -99,6 +99,7 @@ public class RegisterServiceImpl implements RegisterService {
     userRepository.saveAndFlush(userNew);
 
     return errorsResponse;
+
   }
 
   @Override
@@ -126,6 +127,7 @@ public class RegisterServiceImpl implements RegisterService {
       errorsResponse.setResult(false);
     }
     return errorsResponse;
+
   }
 
   @Override
@@ -312,7 +314,7 @@ public class RegisterServiceImpl implements RegisterService {
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message);
 
-    helper.setFrom("mss9836@gmail.com", "DevPub Support");
+    helper.setFrom("devpubhelper@gmail.com", "DevPub Support");
     helper.setTo(recipientEmail);
 
     String subject = "Here's the link to reset your password";

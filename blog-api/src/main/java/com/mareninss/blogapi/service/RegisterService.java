@@ -8,6 +8,7 @@ import java.security.Principal;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
+
 public interface RegisterService {
 
   ErrorsResponse createUser(RegisterRequest registerRequest);
@@ -18,4 +19,5 @@ public interface RegisterService {
       Integer removePhoto, Principal principal);
 
   Map<String, Boolean> recoverPass(RecoverRequest email);
+
 }
