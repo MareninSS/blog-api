@@ -2,6 +2,7 @@ package com.mareninss.blogapi.controller;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
 import com.mareninss.blogapi.api.request.LoginRequest;
+import com.mareninss.blogapi.api.request.RecoverRequest;
 import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
@@ -89,4 +90,11 @@ public class ApiAuthController {
     return ResponseEntity.ok(
         registerService.editProfileMFD(photo, name, email, password, removePhoto, principal));
   }
+
+  @PostMapping("/api/auth/restore")
+  public ResponseEntity<Map<String, Boolean>> recoverPassword(
+      @RequestBody RecoverRequest email) {
+    return ResponseEntity.ok(registerService.recoverPass(email));
+  }
 }
+

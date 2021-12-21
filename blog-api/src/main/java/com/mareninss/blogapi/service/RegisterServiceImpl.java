@@ -1,6 +1,7 @@
 package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
+import com.mareninss.blogapi.api.request.RecoverRequest;
 import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.dao.CaptchaRepository;
@@ -11,6 +12,7 @@ import com.mareninss.blogapi.entity.User;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,12 +21,19 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.Principal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import javax.imageio.ImageIO;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +47,8 @@ public class RegisterServiceImpl implements RegisterService {
   private UserRepository userRepository;
   @Autowired
   private CaptchaRepository captchaRepository;
+  @Autowired
+  private JavaMailSender mailSender;
 
   private final ErrorsResponse errorsResponse;
 
@@ -275,4 +286,83 @@ public class RegisterServiceImpl implements RegisterService {
     return p;
   }
 
+  @Override
+  public Map<String, Boolean> recoverPass(RecoverRequest email) {
+    Optional<User> user = userRepository.findByEmail(email.getEmail());
+    Map<String, Boolean> result = new HashMap<>();
+    if (user.isPresent()) {
+      String token = UUID.randomUUID().toString();
+      final String LINK = "/login/change-password/" + token;
+      user.get().setCode(token);
+      userRepository.saveAndFlush(user.get());
+      try {
+        sendEmail(email.getEmail(), LINK);
+      } catch (MessagingException | UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
+      result.put("result", true);
+    } else {
+      result.put("result", false);
+    }
+    return result;
+  }
+
+  public void sendEmail(String recipientEmail, String link)
+      throws MessagingException, UnsupportedEncodingException {
+    MimeMessage message = mailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(message);
+
+    helper.setFrom("mss9836@gmail.com", "DevPub Support");
+    helper.setTo(recipientEmail);
+
+    String subject = "Here's the link to reset your password";
+
+    String content = "<p>Hello,</p>"
+        + "<p>You have requested to reset your password.</p>"
+        + "<p>Click the link below to change your password:</p>"
+        + "<p><a href=\"" + link + "\">Change my password</a></p>"
+        + "<br>"
+        + "<p>Ignore this email if you do remember your password, "
+        + "or you have not made the request.</p>";
+
+    helper.setSubject(subject);
+
+    helper.setText(content, true);
+
+    mailSender.send(message);
+  }
 }
+//  @PostMapping("/user/resetPassword")
+//  public GenericResponse resetPassword(HttpServletRequest request,
+//      @RequestParam("email") String userEmail) {
+//    User user = userService.findUserByEmail(userEmail);
+//    if (user == null) {
+//      throw new UserNotFoundException();
+//    }
+//    String token = UUID.randomUUID().toString();
+//    userService.createPasswordResetTokenForUser(user, token);
+//    mailSender.send(constructResetTokenEmail(getAppUrl(request), request.getLocale(), token, user));
+//    return new GenericResponse(
+//        messages.getMessage("message.resetPasswordEmail", null, request.getLocale()));
+//  }
+
+//  public void createPasswordResetTokenForUser(User user, String token) {
+//    PasswordResetToken myToken = new PasswordResetToken(token, user);
+//    passwordTokenRepository.save(myToken);
+//  }
+
+//  private SimpleMailMessage constructResetTokenEmail(String contextPath, Locale locale,
+//      String token, User user) {
+//    String url = contextPath + "/user/changePassword?token=" + token;
+//    String message = messages.getMessage("message.resetPassword", null, locale);
+//    return constructEmail("Reset Password", message + " \r\n" + url, user);
+//  }
+//
+//  private SimpleMailMessage constructEmail(String subject, String body, User user) {
+//    SimpleMailMessage email = new SimpleMailMessage();
+//    email.setSubject(subject);
+//    email.setText(body);
+//    email.setTo(user.getEmail());
+//    email.setFrom(env.getProperty("support.email"));
+//    return email;
+//  }
