@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterRequest {
 
+  @JsonProperty("e_mail")
   private String email;
 
   private String password;
-
 
   private String name;
 

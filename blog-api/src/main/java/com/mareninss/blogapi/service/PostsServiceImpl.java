@@ -1,6 +1,5 @@
 package com.mareninss.blogapi.service;
 
-
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;

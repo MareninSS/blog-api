@@ -4,13 +4,24 @@ spring:
     username: root
     password: an293gls
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: devpubhelper@gmail.com
+    password: password123~
+    protocol: smtp
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: smtp.gmail.com
+
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: false
 
   flyway:
-    enabled: true
+    enabled: false
     locations: filesystem:src/main/resources/db/migration
     create-schemas: false
     baseline-on-migrate: on
