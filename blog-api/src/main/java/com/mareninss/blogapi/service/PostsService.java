@@ -4,7 +4,6 @@ import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
-import com.mareninss.blogapi.api.response.PostDataResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import java.security.Principal;
 import java.text.ParseException;

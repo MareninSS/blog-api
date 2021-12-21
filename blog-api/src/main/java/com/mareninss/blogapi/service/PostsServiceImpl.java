@@ -6,10 +6,8 @@ import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
-import com.mareninss.blogapi.api.response.PostDataResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
-import com.mareninss.blogapi.dao.TagRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.ErrorDto;
@@ -55,7 +53,6 @@ public class PostsServiceImpl implements PostsService {
   private final PostByIdResponse postByIdResponse;
   private final ErrorsResponse postDataResponse;
 
-  private final PostDataResponse postDataResponse;
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
