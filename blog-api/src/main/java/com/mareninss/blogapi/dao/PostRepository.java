@@ -24,7 +24,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "moderationStatus") String moderationStatus);
 
 
-
   @Query(value = "SELECT * FROM posts where is_active = :isActive"
       + "  and time < :time and moderation_status = :moderationStatus", nativeQuery = true)
   List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffset(
@@ -104,6 +103,13 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
       @Param(value = "moderationStatus") String moderationStatus,
       @Param(value = "authorId") Integer authorId, Pageable pageable);
 
+  @Query(value =
+      "select * from posts where is_active = :isActive and moderation_status = :moderationStatus "
+          + "and user_id = :authorId", nativeQuery = true)
+  List<Post> getAllByIsActiveAndModerationStatusAndAuthorIdIs(
+      @Param(value = "isActive") Byte isActive,
+      @Param(value = "moderationStatus") String moderationStatus,
+      @Param(value = "authorId") Integer authorId);
 }
 
 
