@@ -35,33 +35,45 @@ public class StatisticsServiceImpl implements StatisticsService {
       final byte ACTIVE = 1;
       List<Post> posts = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(ACTIVE,
           ModerationStatus.ACCEPTED.toString(), idCurrentUser);
-      int postsCount = posts.size();
-      int viewCount = posts.stream().mapToInt(Post::getViewCount).sum();
-
-      long time =
-          (posts.stream().min(Comparator.comparing(Post::getTime)).orElse(new Post()).getTime()
-              .getTime())
-              / 1000;
-      int likesCount = 0;
-      int disLikesCount = 0;
-      for (Post post : posts) {
-        List<PostVote> votes = post.getPostVotes();
-        int tempLikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 1)
-            .count();
-        int tempDislikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 0)
-            .count();
-        likesCount = likesCount + tempLikesCount;
-        disLikesCount = disLikesCount + tempDislikesCount;
-      }
-
-      StatisticsResponse response = new StatisticsResponse();
-      response.setViewsCount(viewCount);
-      response.setPostsCount(postsCount);
-      response.setDislikesCount(disLikesCount);
-      response.setLikesCount(likesCount);
-      response.setFirstPublication(time);
-      return response;
+      return countStatistics(posts);
     }
     return new StatisticsResponse();
+  }
+
+  @Override
+  public StatisticsResponse getAllStatistics(Principal principal) {
+    final byte ACTIVE = 1;
+    List<Post> posts = postRepository.getAllByIsActiveAndModerationStatus(ACTIVE,
+        ModerationStatus.ACCEPTED);
+    return countStatistics(posts);
+  }
+
+  private StatisticsResponse countStatistics(List<Post> posts) {
+    int postsCount = posts.size();
+    int viewCount = posts.stream().mapToInt(Post::getViewCount).sum();
+
+    long time =
+        (posts.stream().min(Comparator.comparing(Post::getTime)).orElse(new Post()).getTime()
+            .getTime())
+            / 1000;
+    int likesCount = 0;
+    int disLikesCount = 0;
+    for (Post post : posts) {
+      List<PostVote> votes = post.getPostVotes();
+      int tempLikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 1)
+          .count();
+      int tempDislikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 0)
+          .count();
+      likesCount = likesCount + tempLikesCount;
+      disLikesCount = disLikesCount + tempDislikesCount;
+    }
+
+    StatisticsResponse response = new StatisticsResponse();
+    response.setViewsCount(viewCount);
+    response.setPostsCount(postsCount);
+    response.setDislikesCount(disLikesCount);
+    response.setLikesCount(likesCount);
+    response.setFirstPublication(time);
+    return response;
   }
 }

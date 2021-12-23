@@ -7,4 +7,6 @@ import java.security.Principal;
 public interface StatisticsService {
 
   StatisticsResponse getStatistics(Principal principal);
+
+  StatisticsResponse getAllStatistics(Principal principal);
 }
