@@ -3,6 +3,7 @@ package com.mareninss.blogapi.controller;
 import com.mareninss.blogapi.api.response.InitResponse;
 import com.mareninss.blogapi.api.response.SettingsResponse;
 import com.mareninss.blogapi.service.SettingsService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,14 +21,13 @@ public class ApiGeneralController {
     this.initResponse = initResponse;
   }
 
-
   @RequestMapping("/api/init")
-  private InitResponse init() {
+  public InitResponse init() {
     return initResponse;
   }
 
   @GetMapping("/api/settings")
-  private SettingsResponse getSettings() {
+  public SettingsResponse getSettings() {
     return settingsService.getGlobalSettings();
   }
 }
