@@ -9,10 +9,12 @@ import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.PostVotesRepository;
+import com.mareninss.blogapi.dao.SettingsRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.dto.PostDto;
+import com.mareninss.blogapi.entity.GlobalSetting;
 import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.PostVote;
@@ -50,6 +52,8 @@ public class PostsServiceImpl implements PostsService {
 
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private SettingsRepository settingsRepository;
 
   private final Byte IS_ACTIVE;
   private final String MODERATION_STATUS;
@@ -300,11 +304,7 @@ public class PostsServiceImpl implements PostsService {
   @Transactional
   public ErrorsResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
     Optional<Post> post = postRepository.findById(id);
-    if (post.isPresent()) {
-      return savePostById(dataRequest, principal, post.get());
-    } else {
-      return null;
-    }
+    return post.map(value -> savePostById(dataRequest, principal, value)).orElse(null);
   }
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
@@ -366,7 +366,18 @@ public class PostsServiceImpl implements PostsService {
           .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
       Post post = new Post();
       post.setIsActive(dataRequest.getActive());
-      post.setModerationStatus(ModerationStatus.NEW);
+
+      boolean active = dataRequest.getActive() == 1;
+      List<GlobalSetting> globalSetting = settingsRepository.getAllBy();
+      int PostPreModerationMode = 1;
+      boolean isPostPreModeration = globalSetting.get(PostPreModerationMode).getValue()
+          .equals("yes");
+      if (active && !isPostPreModeration) {
+        post.setModerationStatus(ModerationStatus.ACCEPTED);
+      } else {
+        post.setModerationStatus(ModerationStatus.NEW);
+      }
+
       post.setModeratorId(null);
       post.setAuthorId(currentUser.getId());
 

@@ -8,11 +8,13 @@ import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.LoginResponse;
-
+import com.mareninss.blogapi.api.response.SettingsResponse;
+import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.service.AuthStatusServiceImpl;
 import com.mareninss.blogapi.service.CaptchaService;
 import com.mareninss.blogapi.service.LoginService;
 import com.mareninss.blogapi.service.RegisterService;
+import com.mareninss.blogapi.service.SettingsService;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class ApiAuthController {
   private LoginService loginService;
   @Autowired
   private RegisterService registerService;
+  @Autowired
+  private SettingsService settingsService;
 
   @GetMapping("/api/auth/check")
   public ResponseEntity<AuthStatusResponse> getAuthStatus(Principal principal) {
@@ -61,7 +65,11 @@ public class ApiAuthController {
 
   @PostMapping("/api/auth/register")
   public ResponseEntity<ErrorsResponse> register(@RequestBody RegisterRequest registerRequest) {
-    return new ResponseEntity<>(registerService.createUser(registerRequest), HttpStatus.OK);
+    boolean isMultiUserMode = settingsService.getGlobalSettings().isMultiUserMode();
+    if (isMultiUserMode) {
+      return new ResponseEntity<>(registerService.createUser(registerRequest), HttpStatus.OK);
+    }
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
   @GetMapping("/api/auth/logout")
@@ -70,7 +78,6 @@ public class ApiAuthController {
     Map<String, Boolean> result = new HashMap<>();
     result.put("result", true);
     return result;
-
   }
 
   @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,7 +104,6 @@ public class ApiAuthController {
   public ResponseEntity<Map<String, Boolean>> recoverPassword(
       @RequestBody RecoverRequest email) {
     return ResponseEntity.ok(registerService.recoverPass(email));
-
   }
 }
 

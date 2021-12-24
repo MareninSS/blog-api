@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.service;
 
+import com.mareninss.blogapi.api.request.SettingsRequest;
 import com.mareninss.blogapi.api.response.SettingsResponse;
 import com.mareninss.blogapi.dao.SettingsRepository;
 import com.mareninss.blogapi.entity.GlobalSetting;
@@ -36,10 +37,25 @@ public class SettingsService {
 
   private boolean setSettingsValue(List<GlobalSetting> globalSettings, int idMode)
       throws SQLException {
-    if (globalSettings.isEmpty() || globalSettings.size() < 2) {
+    var numberModes = 2;
+    if (globalSettings.isEmpty() || globalSettings.size() < numberModes) {
       throw new SQLException("There should be three modes for global settings");
     }
     return Objects.equals(globalSettings.get(idMode - 1).getValue().toUpperCase(Locale.ROOT),
         "YES");
   }
+
+  public void saveSettings(SettingsRequest request) {
+    if (request != null) {
+      List<GlobalSetting> globalSetting = settingsRepository.getAllBy();
+      int MultiUserMode = 0;
+      int PostPreModerationMode = 1;
+      int StatisticIsPublicMode = 2;
+      globalSetting.get(MultiUserMode).setValue(request.isMultiUserMode() ? "yes" : "no");
+      globalSetting.get(PostPreModerationMode).setValue(request.isPostPreModeration() ? "yes" : "no");
+      globalSetting.get(StatisticIsPublicMode).setValue(request.isStatisticIsPublic() ? "yes" : "no");
+      settingsRepository.saveAllAndFlush(globalSetting);
+    }
+  }
+
 }
