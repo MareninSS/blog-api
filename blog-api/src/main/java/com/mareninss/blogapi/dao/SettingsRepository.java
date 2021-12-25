@@ -8,4 +8,5 @@ public interface SettingsRepository extends JpaRepository<GlobalSetting, Integer
 
   List<GlobalSetting> getAllBy();
 
+  GlobalSetting getGlobalSettingsByCodeIs(String code);
 }

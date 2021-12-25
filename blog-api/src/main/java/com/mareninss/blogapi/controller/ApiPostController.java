@@ -1,7 +1,8 @@
 package com.mareninss.blogapi.controller;
 
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mareninss.blogapi.api.request.LikeDislikeRequest;
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
 
 import com.mareninss.blogapi.api.request.PostDataRequest;
@@ -131,6 +132,22 @@ public class ApiPostController {
   public ResponseEntity<Map<String, Boolean>> moderatePost(
       @RequestBody ModerationPostRequest request, Principal principal) {
     return ResponseEntity.ok(postsService.moderatePost(request, principal));
+  }
+
+  @PostMapping("/post/like")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<Map<String, Boolean>> likePost(
+      @RequestBody LikeDislikeRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(postsService.likePost(request, principal));
+  }
+
+  @PostMapping("/post/dislike")
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<Map<String, Boolean>> dislikePost(
+      @RequestBody LikeDislikeRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(postsService.dislikePost(request, principal));
   }
 }
 

@@ -1,5 +1,6 @@
 package com.mareninss.blogapi.service;
 
+import com.mareninss.blogapi.api.request.LikeDislikeRequest;
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
@@ -32,5 +33,9 @@ public interface PostsService {
   ErrorsResponse updatePost(int id, PostDataRequest dataRequest, Principal principal);
 
   Map<String, Boolean> moderatePost(ModerationPostRequest request, Principal principal);
+
+  Map<String, Boolean> likePost(LikeDislikeRequest request, Principal principal);
+
+  Map<String, Boolean> dislikePost(LikeDislikeRequest request, Principal principal);
 
 }

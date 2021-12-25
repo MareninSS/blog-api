@@ -1,4 +1,4 @@
-INSERT INTO `blog_db`.`users`
+INSERT INTO `users`
 (`id`,
  `is_moderator`,
  `reg_time`,
@@ -8,7 +8,7 @@ INSERT INTO `blog_db`.`users`
  `code`,
  `photo`)
 VALUES (1,
-        1,
+        0,
         DATE('2021-11-14 06:40:26'),
         'Sergey',
         'world_org@gmail.com',
@@ -16,15 +16,15 @@ VALUES (1,
         null,
         null),
        (2,
-        1,
+        0,
         DATE('2021-04-14 06:40:26'),
         'Mariya',
         'maria_org@gmail.com',
-        'ytrewq',
+        '111111',
         null,
         null),
        (3,
-        0,
+        1,
         DATE('2018-11-14 06:40:26'),
         'Makar',
         'makar_org@gmail.com',
@@ -32,7 +32,7 @@ VALUES (1,
         null,
         null);
 
-INSERT INTO `blog_db`.`posts`
+INSERT INTO `posts`
 (`id`,
  `is_active`,
  `moderation_status`,
@@ -151,7 +151,7 @@ VALUES (1,
         'Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12Тест 12',
         1);
 
-INSERT INTO `blog_db`.`post_votes`
+INSERT INTO `post_votes`
 (`id`,
  `user_id`,
  `post_id`,
@@ -193,7 +193,7 @@ VALUES (1,
         DATE('2021-11-20 06:40:26'),
         -1);
 
-INSERT INTO `blog_db`.`tags`
+INSERT INTO `tags`
 (`id`,
  `name`)
 VALUES (1,
@@ -207,7 +207,7 @@ VALUES (1,
        (5,
         'DataScience');
 
-INSERT INTO `blog_db`.`post_comments`
+INSERT INTO `post_comments`
 (`id`,
  `parent_id`,
  `post_id`,

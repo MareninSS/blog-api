@@ -1,4 +1,4 @@
-INSERT INTO `blog_db`.`global_settings`
+INSERT INTO `global_settings`
 (`id`,
  `code`,
  `name`,

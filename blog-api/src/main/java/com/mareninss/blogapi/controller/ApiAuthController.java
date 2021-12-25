@@ -2,17 +2,20 @@ package com.mareninss.blogapi.controller;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
 import com.mareninss.blogapi.api.request.LoginRequest;
+import com.mareninss.blogapi.api.request.PasswordResetRequest;
 import com.mareninss.blogapi.api.request.RecoverRequest;
 import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.LoginResponse;
-
+import com.mareninss.blogapi.api.response.SettingsResponse;
+import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.service.AuthStatusServiceImpl;
 import com.mareninss.blogapi.service.CaptchaService;
 import com.mareninss.blogapi.service.LoginService;
 import com.mareninss.blogapi.service.RegisterService;
+import com.mareninss.blogapi.service.SettingsService;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +42,8 @@ public class ApiAuthController {
   private LoginService loginService;
   @Autowired
   private RegisterService registerService;
+  @Autowired
+  private SettingsService settingsService;
 
   @GetMapping("/api/auth/check")
   public ResponseEntity<AuthStatusResponse> getAuthStatus(Principal principal) {
@@ -61,7 +66,11 @@ public class ApiAuthController {
 
   @PostMapping("/api/auth/register")
   public ResponseEntity<ErrorsResponse> register(@RequestBody RegisterRequest registerRequest) {
-    return new ResponseEntity<>(registerService.createUser(registerRequest), HttpStatus.OK);
+    boolean isMultiUserMode = settingsService.getGlobalSettings().isMultiUserMode();
+    if (isMultiUserMode) {
+      return new ResponseEntity<>(registerService.createUser(registerRequest), HttpStatus.OK);
+    }
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 
   @GetMapping("/api/auth/logout")
@@ -70,7 +79,37 @@ public class ApiAuthController {
     Map<String, Boolean> result = new HashMap<>();
     result.put("result", true);
     return result;
+  }
 
+  @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<ErrorsResponse> editProfile(@RequestBody EditProfileRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(registerService.editProfileJSON(request, principal));
+  }
+
+  @PostMapping(value = "/api/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<ErrorsResponse> editProfile(
+      @RequestParam(name = "photo") MultipartFile photo,
+      @RequestParam String name,
+      @RequestParam String email,
+      @RequestParam(required = false) String password,
+      @RequestParam Integer removePhoto,
+      Principal principal) {
+    return ResponseEntity.ok(
+        registerService.editProfileMFD(photo, name, email, password, removePhoto, principal));
+  }
+
+  @PostMapping("/api/auth/restore")
+  public ResponseEntity<Map<String, Boolean>> recoverPassword(
+      @RequestBody RecoverRequest email) {
+    return ResponseEntity.ok(registerService.recoverPass(email));
+  }
+
+  @PostMapping("/api/auth/password")
+  public ResponseEntity<ErrorsResponse> resetPassword(@RequestBody PasswordResetRequest request) {
+    return ResponseEntity.ok(registerService.resetPassword(request));
   }
 
   @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,17 +1,22 @@
 package com.mareninss.blogapi.service;
 
+import com.mareninss.blogapi.api.request.LikeDislikeRequest;
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
+import com.mareninss.blogapi.dao.PostVotesRepository;
+import com.mareninss.blogapi.dao.SettingsRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.dto.PostDto;
+import com.mareninss.blogapi.entity.GlobalSetting;
 import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Post;
+import com.mareninss.blogapi.entity.PostVote;
 import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
 import java.security.Principal;
@@ -41,7 +46,12 @@ public class PostsServiceImpl implements PostsService {
   private PostRepository postRepository;
 
   @Autowired
+  private PostVotesRepository votesRepository;
+
+  @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private SettingsRepository settingsRepository;
 
   private final Byte IS_ACTIVE;
   private final String MODERATION_STATUS;
@@ -49,6 +59,9 @@ public class PostsServiceImpl implements PostsService {
   private final PostsResponse postsResponse;
   private final PostByIdResponse postByIdResponse;
   private final ErrorsResponse postDataResponse;
+  private final byte LIKE = 1;
+  private final byte DISLIKE = -1;
+
 
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -189,7 +202,6 @@ public class PostsServiceImpl implements PostsService {
     return null;
   }
 
-
   private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
       Comparator<PostDto> comparator) {
 
@@ -290,11 +302,7 @@ public class PostsServiceImpl implements PostsService {
   @Transactional
   public ErrorsResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
     Optional<Post> post = postRepository.findById(id);
-    if (post.isPresent()) {
-      return savePostById(dataRequest, principal, post.get());
-    } else {
-      return null;
-    }
+    return post.map(value -> savePostById(dataRequest, principal, value)).orElse(null);
   }
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
@@ -347,6 +355,7 @@ public class PostsServiceImpl implements PostsService {
         || errors.getCaptcha() != null || errors.getText() != null || errors.getTitle() != null;
   }
 
+
   private ErrorsResponse savePost(PostDataRequest dataRequest, Principal principal) {
     if (principal == null) {
       postDataResponse.setResult(false);
@@ -355,7 +364,18 @@ public class PostsServiceImpl implements PostsService {
           .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
       Post post = new Post();
       post.setIsActive(dataRequest.getActive());
-      post.setModerationStatus(ModerationStatus.NEW);
+
+      boolean active = dataRequest.getActive() == 1;
+      List<GlobalSetting> globalSetting = settingsRepository.getAllBy();
+      int PostPreModerationMode = 1;
+      boolean isPostPreModeration = globalSetting.get(PostPreModerationMode).getValue()
+          .equals("yes");
+      if (active && !isPostPreModeration) {
+        post.setModerationStatus(ModerationStatus.ACCEPTED);
+      } else {
+        post.setModerationStatus(ModerationStatus.NEW);
+      }
+
       post.setModeratorId(null);
       post.setAuthorId(currentUser.getId());
 
@@ -467,6 +487,53 @@ public class PostsServiceImpl implements PostsService {
         result.put("result", false);
       }
     }
+    return result;
+  }
+
+  @Override
+  public Map<String, Boolean> likePost(LikeDislikeRequest id, Principal principal) {
+    return getVoteByValue(id, principal, LIKE, DISLIKE);
+  }
+
+  @Override
+  public Map<String, Boolean> dislikePost(LikeDislikeRequest id, Principal principal) {
+    return getVoteByValue(id, principal, DISLIKE, LIKE);
+  }
+
+  private Map<String, Boolean> getVoteByValue(LikeDislikeRequest id, Principal principal,
+      byte vote, byte reverseVote) {
+    Map<String, Boolean> result = new HashMap<>();
+    if (principal != null) {
+      User currentUser = userRepository.findByEmail(
+              principal.getName())
+          .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
+      Optional<Post> post = postRepository.findById(id.getPostId());
+      if (post.isEmpty()) {
+        result.put("result", false);
+        return result;
+      }
+      PostVote postVote = votesRepository.getByPostId(id.getPostId()).orElse(new PostVote());
+      if (Objects.equals(currentUser.getId(), postVote.getUserId())
+          && postVote.getValue() == vote) {
+        result.put("result", false);
+        return result;
+      }
+
+      if (Objects.equals(currentUser.getId(), postVote.getUserId())
+          && postVote.getValue() == reverseVote) {
+        postVote.setValue(vote);
+      }
+      postVote.setUserId(currentUser.getId());
+      postVote.setPostId(id.getPostId());
+      postVote.setTime(new Date());
+      postVote.setValue(vote);
+
+      votesRepository.saveAndFlush(postVote);
+
+      result.put("result", true);
+      return result;
+    }
+    result.put("result", false);
     return result;
   }
 }

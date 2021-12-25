@@ -16,9 +16,9 @@ public class EditProfileRequest {
   private String name;
 
   private String email;
-  @Nullable
+
   private String password;
-  @Nullable
+
   private Integer removePhoto;
 
 }
