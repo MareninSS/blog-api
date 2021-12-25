@@ -1,6 +1,5 @@
 package com.mareninss.blogapi.service;
 
-
 import com.mareninss.blogapi.api.request.LikeDislikeRequest;
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
 import com.mareninss.blogapi.api.request.PostDataRequest;
@@ -29,7 +28,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;

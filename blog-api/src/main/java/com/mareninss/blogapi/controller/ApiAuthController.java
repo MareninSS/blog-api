@@ -111,5 +111,32 @@ public class ApiAuthController {
   public ResponseEntity<ErrorsResponse> resetPassword(@RequestBody PasswordResetRequest request) {
     return ResponseEntity.ok(registerService.resetPassword(request));
   }
+
+  @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<ErrorsResponse> editProfile(@RequestBody EditProfileRequest request,
+      Principal principal) {
+    return ResponseEntity.ok(registerService.editProfileJSON(request, principal));
+  }
+
+  @PostMapping(value = "/api/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
+  public ResponseEntity<ErrorsResponse> editProfile(
+      @RequestParam(name = "photo") MultipartFile photo,
+      @RequestParam String name,
+      @RequestParam String email,
+      @RequestParam(required = false) String password,
+      @RequestParam Integer removePhoto,
+      Principal principal) {
+    return ResponseEntity.ok(
+        registerService.editProfileMFD(photo, name, email, password, removePhoto, principal));
+  }
+
+  @PostMapping("/api/auth/restore")
+  public ResponseEntity<Map<String, Boolean>> recoverPassword(
+      @RequestBody RecoverRequest email) {
+    return ResponseEntity.ok(registerService.recoverPass(email));
+
+  }
 }
 

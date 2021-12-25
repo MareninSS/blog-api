@@ -21,4 +21,5 @@ public interface RegisterService {
   Map<String, Boolean> recoverPass(RecoverRequest email);
 
   ErrorsResponse resetPassword(PasswordResetRequest request);
+
 }
