@@ -46,6 +46,9 @@ public class User {
   @Column(name = "code")
   private String code;
 
+  @Column(name = "time_code")
+  private Date timeCode;
+
   @Column(name = "photo")
   private String photo;
 

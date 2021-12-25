@@ -1,6 +1,7 @@
 package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
+import com.mareninss.blogapi.api.request.PasswordResetRequest;
 import com.mareninss.blogapi.api.request.RecoverRequest;
 import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
@@ -20,6 +21,8 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.Principal;
+import java.time.LocalTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,14 +35,17 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.io.FilenameUtils;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@Component
 public class RegisterServiceImpl implements RegisterService {
 
   @Autowired
@@ -52,6 +58,12 @@ public class RegisterServiceImpl implements RegisterService {
   private final ErrorsResponse errorsResponse;
 
   private final Path root = Paths.get("upload");
+
+  @Value("${hostname.prefix}")
+  private String hostName;
+
+  @Value("${link.lifetime}")
+  private int linkLifetime;
 
   public RegisterServiceImpl() {
     errorsResponse = new ErrorsResponse();
@@ -152,7 +164,7 @@ public class RegisterServiceImpl implements RegisterService {
 
   private boolean hasErrors(ErrorDto errors) {
     return errors.getName() != null || errors.getPassword() != null || errors.getEmail() != null
-        || errors.getCaptcha() != null;
+        || errors.getCaptcha() != null || errors.getCode() != null;
   }
 
   private ErrorsResponse changeOnlyPassword(EditProfileRequest request, Principal principal) {
@@ -293,8 +305,9 @@ public class RegisterServiceImpl implements RegisterService {
     Map<String, Boolean> result = new HashMap<>();
     if (user.isPresent()) {
       String token = UUID.randomUUID().toString();
-      final String LINK = "/login/change-password/" + token;
+      final String LINK = hostName + "/login/change-password/" + token;
       user.get().setCode(token);
+      user.get().setTimeCode(add(new Date(), linkLifetime));
       userRepository.saveAndFlush(user.get());
       try {
         sendEmail(email.getEmail(), LINK);
@@ -306,6 +319,13 @@ public class RegisterServiceImpl implements RegisterService {
       result.put("result", false);
     }
     return result;
+  }
+
+  private Date add(Date date, int minute) {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+    calendar.add(Calendar.MINUTE, minute);
+    return calendar.getTime();
   }
 
   public void sendEmail(String recipientEmail, String link)
@@ -331,5 +351,49 @@ public class RegisterServiceImpl implements RegisterService {
     helper.setText(content, true);
 
     mailSender.send(message);
+  }
+
+  @Override
+  public ErrorsResponse resetPassword(PasswordResetRequest request) {
+    if (request != null) {
+      CaptchaCode captchaCode = captchaRepository.findByCode(request.getCaptcha());
+      boolean isPasswordValid = request.getPassword().length() >= 6;
+      boolean isCaptchaValid = captchaCode != null && Objects.equals(captchaCode.getSecretCode(),
+          request.getSecrete());
+      Optional<User> optionalUser = userRepository.findByCode(request.getCode());
+      boolean isLinkValid =
+          optionalUser.isPresent() && optionalUser.get().getTimeCode().before(new Date());
+      boolean isCodeCorrect =
+          optionalUser.isPresent() && optionalUser.get().getCode().equals(request.getCode());
+      final String LINK = hostName + "/login/restore-password";
+      ErrorDto errorDto = new ErrorDto();
+
+      if (!isPasswordValid) {
+        errorDto.setPassword("Пароль короче 6 символов");
+      }
+      if (!isCaptchaValid) {
+        errorDto.setCaptcha("Код с картинки введен неверно");
+      }
+      if (isLinkValid) {
+        errorDto.setCode("Ссылка для восстановления пароля устарела. \n"
+            + "<a href=\"" + LINK + "\">Запросить ссылку снова</a>");
+      }
+      if (!isCodeCorrect) {
+        errorDto.setCode("неверный код восстановления пароля");
+      }
+      if (hasErrors(errorDto)) {
+        errorsResponse.setResult(false);
+        errorsResponse.setErrors(errorDto);
+        return errorsResponse;
+      }
+      BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+      optionalUser.orElseThrow(() -> new UsernameNotFoundException(""))
+          .setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+      userRepository.saveAndFlush(optionalUser.get());
+      errorsResponse.setResult(true);
+      return errorsResponse;
+    }
+    errorsResponse.setResult(false);
+    return errorsResponse;
   }
 }

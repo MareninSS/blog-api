@@ -1,13 +1,13 @@
 package com.mareninss.blogapi.service;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
+import com.mareninss.blogapi.api.request.PasswordResetRequest;
 import com.mareninss.blogapi.api.request.RecoverRequest;
 import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import java.security.Principal;
 import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
-
 
 public interface RegisterService {
 
@@ -20,4 +20,5 @@ public interface RegisterService {
 
   Map<String, Boolean> recoverPass(RecoverRequest email);
 
+  ErrorsResponse resetPassword(PasswordResetRequest request);
 }

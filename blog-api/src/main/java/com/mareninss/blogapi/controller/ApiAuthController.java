@@ -2,6 +2,7 @@ package com.mareninss.blogapi.controller;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
 import com.mareninss.blogapi.api.request.LoginRequest;
+import com.mareninss.blogapi.api.request.PasswordResetRequest;
 import com.mareninss.blogapi.api.request.RecoverRequest;
 import com.mareninss.blogapi.api.request.RegisterRequest;
 import com.mareninss.blogapi.api.response.AuthStatusResponse;
@@ -104,6 +105,11 @@ public class ApiAuthController {
   public ResponseEntity<Map<String, Boolean>> recoverPassword(
       @RequestBody RecoverRequest email) {
     return ResponseEntity.ok(registerService.recoverPass(email));
+  }
+
+  @PostMapping("/api/auth/password")
+  public ResponseEntity<ErrorsResponse> resetPassword(@RequestBody PasswordResetRequest request) {
+    return ResponseEntity.ok(registerService.resetPassword(request));
   }
 }
 

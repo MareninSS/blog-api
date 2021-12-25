@@ -43,6 +43,13 @@ blog:
 captcha:
   timeToDel: 60 # ! Формат времени для удаления captcha из БД в МИНУТАХ!
 
+
+hostname:
+  prefix: http://localhost:8080
+
+link:
+  lifetime: 2 # ! Формат времени жизни ссылки в МИНУТАХ!
+
 server:
   error:
     include-message: always
