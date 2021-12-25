@@ -9,8 +9,6 @@ import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.LoginResponse;
-import com.mareninss.blogapi.api.response.SettingsResponse;
-import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.service.AuthStatusServiceImpl;
 import com.mareninss.blogapi.service.CaptchaService;
 import com.mareninss.blogapi.service.LoginService;
@@ -110,33 +108,6 @@ public class ApiAuthController {
   @PostMapping("/api/auth/password")
   public ResponseEntity<ErrorsResponse> resetPassword(@RequestBody PasswordResetRequest request) {
     return ResponseEntity.ok(registerService.resetPassword(request));
-  }
-
-  @PostMapping(value = "/api/profile/my", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
-  public ResponseEntity<ErrorsResponse> editProfile(@RequestBody EditProfileRequest request,
-      Principal principal) {
-    return ResponseEntity.ok(registerService.editProfileJSON(request, principal));
-  }
-
-  @PostMapping(value = "/api/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
-  public ResponseEntity<ErrorsResponse> editProfile(
-      @RequestParam(name = "photo") MultipartFile photo,
-      @RequestParam String name,
-      @RequestParam String email,
-      @RequestParam(required = false) String password,
-      @RequestParam Integer removePhoto,
-      Principal principal) {
-    return ResponseEntity.ok(
-        registerService.editProfileMFD(photo, name, email, password, removePhoto, principal));
-  }
-
-  @PostMapping("/api/auth/restore")
-  public ResponseEntity<Map<String, Boolean>> recoverPassword(
-      @RequestBody RecoverRequest email) {
-    return ResponseEntity.ok(registerService.recoverPass(email));
-
   }
 }
 
