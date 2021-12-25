@@ -21,10 +21,10 @@ spring:
     show-sql: false
 
   flyway:
-    enabled: false
+    enabled: true
     locations: filesystem:src/main/resources/db/migration
     create-schemas: false
-    baseline-on-migrate: on
+    baseline-on-migrate: true
 
 
   servlet:

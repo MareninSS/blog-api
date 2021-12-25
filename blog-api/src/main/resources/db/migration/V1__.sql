@@ -46,7 +46,7 @@ CREATE TABLE if not exists posts
     user_id           INT                NOT NULL,
     time              datetime           NOT NULL,
     title             VARCHAR(255)       NOT NULL,
-    text              VARCHAR(255)       NOT NULL,
+    text              TEXT               NOT NULL,
     view_count        INT                NOT NULL,
     CONSTRAINT pk_posts PRIMARY KEY (id)
 );
