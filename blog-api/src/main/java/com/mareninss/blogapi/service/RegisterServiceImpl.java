@@ -110,6 +110,7 @@ public class RegisterServiceImpl implements RegisterService {
     userRepository.saveAndFlush(userNew);
 
     return errorsResponse;
+
   }
 
   @Override
@@ -137,6 +138,7 @@ public class RegisterServiceImpl implements RegisterService {
       errorsResponse.setResult(false);
     }
     return errorsResponse;
+
   }
 
   @Override
@@ -158,6 +160,7 @@ public class RegisterServiceImpl implements RegisterService {
     }
     return errorsResponse;
   }
+
 
   private boolean hasErrors(ErrorDto errors) {
     return errors.getName() != null || errors.getPassword() != null || errors.getEmail() != null
@@ -392,183 +395,5 @@ public class RegisterServiceImpl implements RegisterService {
     }
     errorsResponse.setResult(false);
     return errorsResponse;
-  }
-
-  private ErrorsResponse changeOnlyPassword(EditProfileRequest request, Principal principal) {
-    com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
-            principal.getName())
-        .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-    ErrorDto errorDto = new ErrorDto();
-    boolean isNameValid = request.getName().length() >= 2;
-    boolean isPasswordValid = request.getPassword().length() >= 6;
-    if (!isNameValid) {
-      errorDto.setName("Имя указано неверно");
-    }
-    if (!isPasswordValid) {
-      errorDto.setPassword("Пароль короче 6 символов");
-    }
-    if (hasErrors(errorDto)) {
-      errorsResponse.setResult(false);
-      errorsResponse.setErrors(errorDto);
-      return errorsResponse;
-    }
-    currentUser.setPassword(bCryptPasswordEncoder.encode(request.getPassword()));
-    userRepository.saveAndFlush(currentUser);
-    errorsResponse.setResult(true);
-    return errorsResponse;
-  }
-
-  private ErrorsResponse changePasswordAndPhoto(MultipartFile photo,
-      String password, Principal principal) {
-    com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
-            principal.getName())
-        .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-    ErrorDto error = new ErrorDto();
-    if (photo.getSize() > 2097152) {
-      error.setImage("размер файла больше 2.0 МБ");
-    }
-    if (!FilenameUtils.isExtension(
-        photo.getOriginalFilename(), "jpg", "png")) {
-      error.setExtension("файл не формата jpg, png");
-    }
-    if (photo.getSize() > 2097152) {
-      error.setImage("Размер фото слишком большое, нужно не более 2.0 МБ");
-    }
-    if (hasErrors(error)) {
-      errorsResponse.setResult(false);
-      errorsResponse.setErrors(error);
-      return errorsResponse;
-    }
-    String path = null;
-    try {
-      path = resizeFile(photo);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-    currentUser.setPassword(bCryptPasswordEncoder.encode(password));
-    currentUser.setPhoto(path);
-    userRepository.saveAndFlush(currentUser);
-    errorsResponse.setResult(true);
-    return errorsResponse;
-  }
-
-  private ErrorsResponse changePhotoAndData(MultipartFile photo, String name, String email,
-      Principal principal) {
-    com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
-            principal.getName())
-        .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-    ErrorDto error = new ErrorDto();
-    if (photo.getSize() > 2097152) {
-      error.setImage("размер файла больше 2.0 МБ");
-    }
-    if (!FilenameUtils.isExtension(
-        photo.getOriginalFilename(), "jpg", "png")) {
-      error.setExtension("файл не формата jpg, png");
-    }
-    if (photo.getSize() > 2097152) {
-      error.setImage("Размер фото слишком большое, нужно не более 2.0 МБ");
-    }
-    if (hasErrors(error)) {
-      errorsResponse.setResult(false);
-      errorsResponse.setErrors(error);
-      return errorsResponse;
-    }
-
-    String path = null;
-    try {
-      path = resizeFile(photo);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-
-    currentUser.setPhoto(path);
-    currentUser.setName(name);
-    currentUser.setEmail(email);
-    userRepository.saveAndFlush(currentUser);
-    errorsResponse.setResult(true);
-    return errorsResponse;
-  }
-
-  private ErrorsResponse removePhoto(EditProfileRequest request, Principal principal) {
-    com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
-            principal.getName())
-        .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-    String pathFromBD = currentUser.getPhoto();
-    Path pathTODel = Paths.get(pathFromBD).toAbsolutePath();
-    try {
-      Files.walkFileTree(pathTODel, new SimpleFileVisitor<>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          Files.delete(file);
-          return FileVisitResult.CONTINUE;
-        }
-      });
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    currentUser.setPhoto(request.getPhoto());
-    userRepository.saveAndFlush(currentUser);
-    errorsResponse.setResult(true);
-    return errorsResponse;
-  }
-
-  private String resizeFile(MultipartFile file)
-      throws IOException {
-    final int WIDTH = 36;
-    final int HEIGHT = 36;
-    Path path = root.resolve(Path.of("photos"));
-    Files.createDirectories(path);
-    String p = path.resolve(Objects.requireNonNull(file.getOriginalFilename())).toString();
-    BufferedImage imageResized = Scalr.resize(ImageIO.read(file.getInputStream()), WIDTH, HEIGHT);
-    ImageIO.write(imageResized, "jpg", new File(p));
-    return p;
-  }
-
-  @Override
-  public Map<String, Boolean> recoverPass(RecoverRequest email) {
-    Optional<User> user = userRepository.findByEmail(email.getEmail());
-    Map<String, Boolean> result = new HashMap<>();
-    if (user.isPresent()) {
-      String token = UUID.randomUUID().toString();
-      final String LINK = "/login/change-password/" + token;
-      user.get().setCode(token);
-      userRepository.saveAndFlush(user.get());
-      try {
-        sendEmail(email.getEmail(), LINK);
-      } catch (MessagingException | UnsupportedEncodingException e) {
-        e.printStackTrace();
-      }
-      result.put("result", true);
-    } else {
-      result.put("result", false);
-    }
-    return result;
-  }
-
-  public void sendEmail(String recipientEmail, String link)
-      throws MessagingException, UnsupportedEncodingException {
-    MimeMessage message = mailSender.createMimeMessage();
-    MimeMessageHelper helper = new MimeMessageHelper(message);
-
-    helper.setFrom("devpubhelper@gmail.com", "DevPub Support");
-    helper.setTo(recipientEmail);
-
-    String subject = "Here's the link to reset your password";
-
-    String content = "<p>Hello,</p>"
-        + "<p>You have requested to reset your password.</p>"
-        + "<p>Click the link below to change your password:</p>"
-        + "<p><a href=\"" + link + "\">Change my password</a></p>"
-        + "<br>"
-        + "<p>Ignore this email if you do remember your password, "
-        + "or you have not made the request.</p>";
-
-    helper.setSubject(subject);
-
-    helper.setText(content, true);
-
-    mailSender.send(message);
   }
 }
