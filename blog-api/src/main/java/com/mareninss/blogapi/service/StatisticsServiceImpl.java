@@ -10,6 +10,7 @@ import com.mareninss.blogapi.entity.User;
 import java.security.Principal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -49,31 +50,40 @@ public class StatisticsServiceImpl implements StatisticsService {
   }
 
   private StatisticsResponse countStatistics(List<Post> posts) {
-    int postsCount = posts.size();
-    int viewCount = posts.stream().mapToInt(Post::getViewCount).sum();
-
-    long time =
-        (posts.stream().min(Comparator.comparing(Post::getTime)).orElse(new Post()).getTime()
-            .getTime())
-            / 1000;
-    int likesCount = 0;
-    int disLikesCount = 0;
-    for (Post post : posts) {
-      List<PostVote> votes = post.getPostVotes();
-      int tempLikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 1)
-          .count();
-      int tempDislikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 0)
-          .count();
-      likesCount = likesCount + tempLikesCount;
-      disLikesCount = disLikesCount + tempDislikesCount;
-    }
-
     StatisticsResponse response = new StatisticsResponse();
-    response.setViewsCount(viewCount);
-    response.setPostsCount(postsCount);
-    response.setDislikesCount(disLikesCount);
-    response.setLikesCount(likesCount);
-    response.setFirstPublication(time);
+    if (posts.size() > 0) {
+      int postsCount = posts.size();
+      int viewCount = posts.stream().mapToInt(Post::getViewCount).sum();
+
+      long time =
+          Objects.requireNonNull(posts.stream().min(Comparator.comparing(Post::getTime))
+                  .orElse(null)).getTime()
+              .getTime()
+              / 1000;
+      int likesCount = 0;
+      int disLikesCount = 0;
+      for (Post post : posts) {
+        List<PostVote> votes = post.getPostVotes();
+        int tempLikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 1)
+            .count();
+        int tempDislikesCount = (int) votes.stream().filter(postVote -> postVote.getValue() == 0)
+            .count();
+        likesCount = likesCount + tempLikesCount;
+        disLikesCount = disLikesCount + tempDislikesCount;
+      }
+
+      response.setViewsCount(viewCount);
+      response.setPostsCount(postsCount);
+      response.setDislikesCount(disLikesCount);
+      response.setLikesCount(likesCount);
+      response.setFirstPublication(time);
+      return response;
+    }
+    response.setFirstPublication(0);
+    response.setDislikesCount(0);
+    response.setViewsCount(0);
+    response.setPostsCount(0);
+    response.setLikesCount(0);
     return response;
   }
 }
