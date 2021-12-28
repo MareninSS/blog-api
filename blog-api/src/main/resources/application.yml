@@ -45,7 +45,7 @@ captcha:
 
 
 hostname:
-  prefix: http://localhost:8080
+  prefix: https://blog-marenin.herokuapp.com
 
 link:
   lifetime: 2 # ! Формат времени жизни ссылки в МИНУТАХ!
