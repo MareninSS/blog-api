@@ -17,23 +17,19 @@ public class CaptchaServiceImpl implements CaptchaService {
 
   @Autowired
   private CaptchaRepository captchaRepository;
-  private Cage cage;
+
   private final Date CURRENT_TIME = new Date();
-  private final CaptchaResponse captchaResponse;
   @Value("${captcha.timeToDel}")
   private int timeToDelete;
-
-  public CaptchaServiceImpl() {
-    captchaResponse = new CaptchaResponse();
-  }
 
   @Override
   @Transactional
   public CaptchaResponse generateCaptcha() {
+    CaptchaResponse captchaResponse = new CaptchaResponse();
     Painter painter = new Painter(150, 75, null, null, null, null);
-    cage = new Cage(painter, null, null, null, null, null, null);
+    Cage cage = new Cage(painter, null, null, null, null, null, null);
     String namePrefix = "data:image/png;base64, ";
-    String code = cage.getTokenGenerator().next(); // получаю текст картинки
+    String code = cage.getTokenGenerator().next().substring(0, 4); // получаю текст картинки
     byte[] imageBuff = cage.draw(
         code); // получаю массив байтов, содержащий сериализованное сгенерированное изображение
     String enCodeBase64 = Base64.getEncoder().encodeToString(imageBuff);//конвертируем в Base64

@@ -53,34 +53,21 @@ public class PostsServiceImpl implements PostsService {
   @Autowired
   private SettingsRepository settingsRepository;
 
-  private final Byte IS_ACTIVE;
-  private final String MODERATION_STATUS;
-  private final Date CURRENT_TIME;
-  private final PostsResponse postsResponse;
-  private final PostByIdResponse postByIdResponse;
-  private final ErrorsResponse postDataResponse;
+  private final Byte IS_ACTIVE = 1;
+  private final String MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
+  private final Date CURRENT_TIME = new Date();
   private final byte LIKE = 1;
   private final byte DISLIKE = -1;
 
-
   private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-
-  public PostsServiceImpl() {
-    IS_ACTIVE = 1;
-    CURRENT_TIME = new Date();
-    postsResponse = new PostsResponse();
-    postByIdResponse = new PostByIdResponse();
-    postDataResponse = new ErrorsResponse();
-    MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
-  }
 
   @Override
   public PostsResponse getPosts(int offset, int limit, String mode) {
     Pageable page = PageRequest.of(offset, limit);
+    PostsResponse postsResponse = new PostsResponse();
 
     Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
-    Comparator<PostDto> popularMode = Comparator.comparing(PostDto::getCommentCount);
+    Comparator<PostDto> popularMode = Comparator.comparing(PostDto::getCommentCount).reversed();
     Comparator<PostDto> bestMode = Comparator.comparing(PostDto::getLikeCount);
     Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp);
     switch (mode) {
@@ -99,6 +86,8 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   public PostsResponse getPostsByQuery(int offset, int limit, String query) {
+    PostsResponse postsResponse = new PostsResponse();
+
     Pageable page = PageRequest.of(offset, limit);
     Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
     if (query == null || query.isBlank()) {
@@ -121,6 +110,8 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   public PostsResponse getPostsByDates(int offset, int limit, String date) throws ParseException {
+    PostsResponse postsResponse = new PostsResponse();
+
     Pageable page = PageRequest.of(offset, limit);
     Date dateNow = dateFormat.parse(date);
     String validDate = dateFormat.format(dateNow);
@@ -139,6 +130,8 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   public PostsResponse getPostsByTag(int offset, int limit, String tag) {
+    PostsResponse postsResponse = new PostsResponse();
+
     Pageable page = PageRequest.of(offset, limit);
     int count = postRepository
         .findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE, CURRENT_TIME,
@@ -158,6 +151,8 @@ public class PostsServiceImpl implements PostsService {
   @Override
   @Transactional
   public PostByIdResponse getPostById(int id, Principal principal) {
+    PostByIdResponse postByIdResponse = new PostByIdResponse();
+
     final int LIKE = 1;
     final int DISLIKE = -1;
     final int MODERATOR = 1;
@@ -186,10 +181,12 @@ public class PostsServiceImpl implements PostsService {
             || currentUser.getIsModerator() == MODERATOR) {
           postByIdResponse.setViewCount(viewCount);//получаем
         } else {
+          viewCount++;
           postByIdResponse.setViewCount(viewCount);//получаем
           postRepository.updateViewCountById(id);//обновляем + 1
         }
       } else {
+        viewCount++;
         postByIdResponse.setViewCount(viewCount);//получаем
         postRepository.updateViewCountById(id);//обновляем + 1
       }
@@ -204,6 +201,7 @@ public class PostsServiceImpl implements PostsService {
 
   private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
       Comparator<PostDto> comparator) {
+    PostsResponse postsResponse = new PostsResponse();
 
     int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
             IS_ACTIVE,
@@ -225,6 +223,7 @@ public class PostsServiceImpl implements PostsService {
   @Override
   public PostsResponse getPostsForModeration(int offset, int limit, String status,
       Principal principal) {
+    PostsResponse postsResponse = new PostsResponse();
 
     if (principal == null) {
       return postsResponse;
@@ -247,6 +246,8 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   public PostsResponse getMyPosts(int offset, int limit, String status, Principal principal) {
+    PostsResponse postsResponse = new PostsResponse();
+
     if (principal == null) {
       return postsResponse;
     } else {
@@ -280,6 +281,8 @@ public class PostsServiceImpl implements PostsService {
   @Override
   @Transactional
   public ErrorsResponse addPost(PostDataRequest dataRequest, Principal principal) {
+    ErrorsResponse postDataResponse = new ErrorsResponse();
+
     ErrorDto errorDto = new ErrorDto();
     if (principal == null) {
       postDataResponse.setResult(false);
@@ -307,6 +310,8 @@ public class PostsServiceImpl implements PostsService {
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
       Integer moderatorId) {
+    PostsResponse postsResponse = new PostsResponse();
+
     Pageable page = PageRequest.of(offset, limit);
     if (moderatorId == null) {
       int count = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(IS_ACTIVE,
@@ -337,6 +342,8 @@ public class PostsServiceImpl implements PostsService {
 
   private PostsResponse getPostsWithStatusParams(byte isActive, int offset, int limit,
       String status, int authorId) {
+    PostsResponse postsResponse = new PostsResponse();
+
     Pageable page = PageRequest.of(offset, limit);
     int count = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(isActive, status,
         authorId, page).size();
@@ -357,6 +364,8 @@ public class PostsServiceImpl implements PostsService {
 
 
   private ErrorsResponse savePost(PostDataRequest dataRequest, Principal principal) {
+    ErrorsResponse postDataResponse = new ErrorsResponse();
+
     if (principal == null) {
       postDataResponse.setResult(false);
     } else {
@@ -408,6 +417,8 @@ public class PostsServiceImpl implements PostsService {
 
   private ErrorsResponse savePostById(PostDataRequest dataRequest, Principal principal,
       Post postById) {
+    ErrorsResponse postDataResponse = new ErrorsResponse();
+
     byte moderator = 1;
     if (principal == null) {
       postDataResponse.setResult(false);

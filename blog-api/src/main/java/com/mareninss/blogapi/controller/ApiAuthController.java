@@ -110,4 +110,3 @@ public class ApiAuthController {
     return ResponseEntity.ok(registerService.resetPassword(request));
   }
 }
-

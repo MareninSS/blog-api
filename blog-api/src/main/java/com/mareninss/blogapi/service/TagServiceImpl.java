@@ -25,22 +25,14 @@ public class TagServiceImpl implements TagService {
   @Autowired
   private PostRepository postRepository;
 
-  private final TagResponse tagResponse;
-
-  private final Byte IS_ACTIVE;
-  private final String MODERATION_STATUS;
-  private final Date CURRENT_TIME;
-
-
-  public TagServiceImpl() {
-    IS_ACTIVE = 1;
-    CURRENT_TIME = new Date();
-    MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
-    tagResponse = new TagResponse();
-  }
+  private final Byte IS_ACTIVE = 1;
+  private final String MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
+  private final Date CURRENT_TIME = new Date();
 
   @Override
   public TagResponse getTags(String query) {
+    TagResponse tagResponse = new TagResponse();
+
     if (query == null || query.isEmpty()) {
       List<Tag> tagList = tagRepository.findAll();
       tagResponse.setTags(calculatingOfNormalizedWeight(tagList));

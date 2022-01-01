@@ -22,21 +22,13 @@ public class CalendarServiceImpl implements CalendarService {
   @Autowired
   private PostRepository postRepository;
 
-
-  private final Byte IS_ACTIVE;
-  private final String MODERATION_STATUS;
-  private final Date CURRENT_TIME;
-  private final CalendarCountPostResponse calendarCountPostResponse;
-
-  public CalendarServiceImpl() {
-    IS_ACTIVE = 1;
-    CURRENT_TIME = new Date();
-    calendarCountPostResponse = new CalendarCountPostResponse();
-    MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
-  }
+  private final Byte IS_ACTIVE = 1;
+  private final String MODERATION_STATUS = ModerationStatus.ACCEPTED.toString();
+  private final Date CURRENT_TIME = new Date();
 
   @Override
   public CalendarCountPostResponse getNumberOfPostByYear(List<Integer> years) {
+    CalendarCountPostResponse calendarCountPostResponse = new CalendarCountPostResponse();
     List<Integer> currentYear = new ArrayList<>();
     if (years == null) {
       currentYear.add(LocalDate.now().getYear());

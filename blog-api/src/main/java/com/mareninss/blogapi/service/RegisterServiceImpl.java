@@ -55,7 +55,7 @@ public class RegisterServiceImpl implements RegisterService {
   @Autowired
   private JavaMailSender mailSender;
 
-  private final ErrorsResponse errorsResponse;
+//  private ErrorsResponse errorsResponse;
 
   private final Path root = Paths.get("upload");
 
@@ -66,11 +66,13 @@ public class RegisterServiceImpl implements RegisterService {
   private int linkLifetime;
 
   public RegisterServiceImpl() {
-    errorsResponse = new ErrorsResponse();
+
   }
 
   @Override
   public ErrorsResponse createUser(RegisterRequest registerRequest) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     final Integer notModerator = 0;
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     ErrorDto errorDto = new ErrorDto();
@@ -115,6 +117,8 @@ public class RegisterServiceImpl implements RegisterService {
 
   @Override
   public ErrorsResponse editProfileJSON(EditProfileRequest request, Principal principal) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     if (principal != null) {
       User currentUser = userRepository.findByEmail(principal.getName())
           .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
@@ -144,6 +148,8 @@ public class RegisterServiceImpl implements RegisterService {
   @Override
   public ErrorsResponse editProfileMFD(MultipartFile photo, String name, String email,
       String password, Integer removePhoto, Principal principal) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     if (principal != null) {
 
       if (removePhoto == 0 && photo != null && name != null
@@ -168,6 +174,8 @@ public class RegisterServiceImpl implements RegisterService {
   }
 
   private ErrorsResponse changeOnlyPassword(EditProfileRequest request, Principal principal) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
             principal.getName())
         .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
@@ -194,6 +202,8 @@ public class RegisterServiceImpl implements RegisterService {
 
   private ErrorsResponse changePasswordAndPhoto(MultipartFile photo,
       String password, Principal principal) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
             principal.getName())
         .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
@@ -229,6 +239,8 @@ public class RegisterServiceImpl implements RegisterService {
 
   private ErrorsResponse changePhotoAndData(MultipartFile photo, String name, String email,
       Principal principal) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
             principal.getName())
         .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
@@ -265,6 +277,8 @@ public class RegisterServiceImpl implements RegisterService {
   }
 
   private ErrorsResponse removePhoto(EditProfileRequest request, Principal principal) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(
             principal.getName())
         .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
@@ -355,6 +369,8 @@ public class RegisterServiceImpl implements RegisterService {
 
   @Override
   public ErrorsResponse resetPassword(PasswordResetRequest request) {
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+
     if (request != null) {
       CaptchaCode captchaCode = captchaRepository.findByCode(request.getCaptcha());
       boolean isPasswordValid = request.getPassword().length() >= 6;

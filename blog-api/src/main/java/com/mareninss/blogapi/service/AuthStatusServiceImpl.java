@@ -17,15 +17,10 @@ public class AuthStatusServiceImpl implements AuthStatusService {
   private UserRepository userRepository;
   @Autowired
   private PostRepository postRepository;
-  private final AuthStatusResponse authStatusResponse;
-
-  public AuthStatusServiceImpl() {
-    authStatusResponse = new AuthStatusResponse();
-  }
 
   @Override
   public AuthStatusResponse getAuthStatus(Principal principal) {
-
+    AuthStatusResponse authStatusResponse = new AuthStatusResponse();
     if (principal == null) {
       authStatusResponse.setResult(false);
       return authStatusResponse;
@@ -36,7 +31,7 @@ public class AuthStatusServiceImpl implements AuthStatusService {
     int moderationCount = postRepository.getAllByModerationStatusAndModeratorIdIs(
         ModerationStatus.NEW, null).size();
     authStatusResponse.setResult(true);
-    authStatusResponse.setUser(DtoMapper.mapToUserDto(currentUser,moderationCount ));
+    authStatusResponse.setUser(DtoMapper.mapToUserDto(currentUser, moderationCount));
     return authStatusResponse;
   }
 }

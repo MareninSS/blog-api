@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:${JAWSDB_URL:mysql://localhost:3306/blog_db?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&reconnect=true}
+    url: jdbc:mysql://localhost:3306/blog_db?useSSL=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf-8&reconnect=true
     username: root
     password: an293gls
 
@@ -45,7 +45,7 @@ captcha:
 
 
 hostname:
-  prefix: https://blog-marenin.herokuapp.com
+  prefix: http://localhost:8080
 
 link:
   lifetime: 2 # ! Формат времени жизни ссылки в МИНУТАХ!
@@ -54,7 +54,7 @@ server:
   error:
     include-message: always
     include-binding-errors: always
-  port: ${PORT:8080}
+#  port: ${PORT:8080}
 
 
 

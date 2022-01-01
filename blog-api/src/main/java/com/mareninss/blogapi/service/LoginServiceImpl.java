@@ -22,18 +22,16 @@ public class LoginServiceImpl implements LoginService {
   private UserRepository userRepository;
   @Autowired
   private PostRepository postRepository;
-  private final AuthenticationManager authenticationManager;
-
-  private final LoginResponse loginResponse;
+  private AuthenticationManager authenticationManager;
 
   public LoginServiceImpl(AuthenticationManager authenticationManager) {
     this.authenticationManager = authenticationManager;
-    loginResponse = new LoginResponse();
   }
 
 
   @Override
   public LoginResponse checkAndAuth(LoginRequest loginRequest) {
+    LoginResponse loginResponse = new LoginResponse();
     Authentication auth = authenticationManager
         .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
             loginRequest.getPassword()));
