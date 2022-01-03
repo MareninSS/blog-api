@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-  private final Path root = Paths.get("upload");
+  private final Path root = Paths.get("upload").normalize();
 
 
   @Override
@@ -28,7 +28,8 @@ public class FileStorageServiceImpl implements FileStorageService {
         throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
       }
     }
-    return path.resolve(file.getOriginalFilename()).toString();
+    String replaced = path.resolve(file.getOriginalFilename()).toString().replace("\\","/");
+    return "/" + replaced;
   }
 
   public Path createThreeRandomFolders() {

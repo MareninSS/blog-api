@@ -303,14 +303,15 @@ public class RegisterServiceImpl implements RegisterService {
 
   private String resizeFile(MultipartFile file)
       throws IOException {
-    final int WIDTH = 36;
-    final int HEIGHT = 36;
+    final int WIDTH = 360;
+    final int HEIGHT = 360;
     Path path = root.resolve(Path.of("photos"));
     Files.createDirectories(path);
     String p = path.resolve(Objects.requireNonNull(file.getOriginalFilename())).toString();
     BufferedImage imageResized = Scalr.resize(ImageIO.read(file.getInputStream()), WIDTH, HEIGHT);
     ImageIO.write(imageResized, "jpg", new File(p));
-    return p;
+    String replace = p.replace("\\", "/");
+    return "/" + replace;
   }
 
   @Override
