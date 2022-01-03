@@ -12,7 +12,6 @@ import com.mareninss.blogapi.dao.SettingsRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.dto.ErrorDto;
-import com.mareninss.blogapi.dto.PostDto;
 import com.mareninss.blogapi.entity.GlobalSetting;
 import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Post;
@@ -23,7 +22,6 @@ import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -63,22 +62,27 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   public PostsResponse getPosts(int offset, int limit, String mode) {
-    Pageable page = PageRequest.of(offset, limit);
+    Pageable page = PageRequest.of((offset == 0 || offset < 0 ? 0 : (offset / 10)), limit);
     PostsResponse postsResponse = new PostsResponse();
+    Page<Post> posts;
 
-    Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
-    Comparator<PostDto> popularMode = Comparator.comparing(PostDto::getCommentCount).reversed();
-    Comparator<PostDto> bestMode = Comparator.comparing(PostDto::getLikeCount);
-    Comparator<PostDto> earlyMode = Comparator.comparing(PostDto::getTimestamp);
     switch (mode) {
       case "recent":
-        return getPostsWithModeOffsetLimit(page, recentMode);
+        posts = postRepository.getAllByIsActiveAndModerationStatusAndTimeLessThanOrderByTimeDesc(
+            IS_ACTIVE, ModerationStatus.ACCEPTED, CURRENT_TIME, page);
+        return getPostsWithModeOffsetLimit(posts);
       case "popular":
-        return getPostsWithModeOffsetLimit(page, popularMode);
+        posts = postRepository.getAllByIsActiveAndModerationStatusAndTimeLessThanOrderByPostVotes(
+            IS_ACTIVE, CURRENT_TIME, MODERATION_STATUS, page);
+        return getPostsWithModeOffsetLimit(posts);
       case "best":
-        return getPostsWithModeOffsetLimit(page, bestMode);
+        posts = postRepository.getAllByIsActiveAndModerationStatusAndTimeLessThan(
+            IS_ACTIVE, CURRENT_TIME, MODERATION_STATUS, page);
+        return getPostsWithModeOffsetLimit(posts);
       case "early":
-        return getPostsWithModeOffsetLimit(page, earlyMode);
+        posts = postRepository.getAllByIsActiveAndModerationStatusAndTimeLessThanOrderByTimeAsc(
+            IS_ACTIVE, ModerationStatus.ACCEPTED, CURRENT_TIME, page);
+        return getPostsWithModeOffsetLimit(posts);
     }
     return postsResponse;
   }
@@ -86,66 +90,38 @@ public class PostsServiceImpl implements PostsService {
 
   @Override
   public PostsResponse getPostsByQuery(int offset, int limit, String query) {
-    PostsResponse postsResponse = new PostsResponse();
+    Page<Post> posts;
+    Pageable page = PageRequest.of((offset == 0 || offset < 0 ? 0 : (offset / 10)), limit);
 
-    Pageable page = PageRequest.of(offset, limit);
-    Comparator<PostDto> recentMode = Comparator.comparing(PostDto::getTimestamp).reversed();
     if (query == null || query.isBlank()) {
-      return getPostsWithModeOffsetLimit(page, recentMode);
-    } else {
-      int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffsetAndQueryLike(
-              IS_ACTIVE, CURRENT_TIME, MODERATION_STATUS, query, page)
-          .size();
-      List<PostDto> postsDto = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffsetAndQueryLike(
-              IS_ACTIVE, CURRENT_TIME, MODERATION_STATUS, query, page)
-          .stream()
-          .map(DtoMapper::mapToPostDto)
-          .sorted(recentMode)
-          .collect(Collectors.toList());
-      postsResponse.setCount(count);
-      postsResponse.setPosts(postsDto);
-      return postsResponse;
+      posts = postRepository.getAllByIsActiveAndModerationStatusAndTimeLessThanOrderByTimeDesc(
+          IS_ACTIVE, ModerationStatus.ACCEPTED, CURRENT_TIME, page);
+      return getPostsWithModeOffsetLimit(posts);
     }
+    posts = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffsetAndQueryLike(
+        IS_ACTIVE, CURRENT_TIME, MODERATION_STATUS, query, page);
+    return getPostsWithModeOffsetLimit(posts);
   }
 
   @Override
   public PostsResponse getPostsByDates(int offset, int limit, String date) throws ParseException {
-    PostsResponse postsResponse = new PostsResponse();
-
-    Pageable page = PageRequest.of(offset, limit);
+    Pageable page = PageRequest.of((offset == 0 || offset < 0 ? 0 : (offset / 10)), limit);
     Date dateNow = dateFormat.parse(date);
     String validDate = dateFormat.format(dateNow);
 
-    int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
-        IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page).size();
-    List<PostDto> postDtos = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
-            IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page)
-        .stream()
-        .map(DtoMapper::mapToPostDto)
-        .collect(Collectors.toList());
-    postsResponse.setCount(count);
-    postsResponse.setPosts(postDtos);
-    return postsResponse;
+    Page<Post> posts = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
+        IS_ACTIVE, CURRENT_TIME, validDate, MODERATION_STATUS, page);
+    return getPostsWithModeOffsetLimit(posts);
   }
 
   @Override
   public PostsResponse getPostsByTag(int offset, int limit, String tag) {
-    PostsResponse postsResponse = new PostsResponse();
+    Pageable page = PageRequest.of((offset == 0 || offset < 0 ? 0 : (offset / 10)), limit);
 
-    Pageable page = PageRequest.of(offset, limit);
-    int count = postRepository
+    Page<Post> posts = postRepository
         .findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE, CURRENT_TIME,
-            MODERATION_STATUS, tag, page).size();
-    List<PostDto> postDtos = postRepository
-        .findPostsByTagNameAndIsActiveAndTimeIsLessThanAndModerationStatus(IS_ACTIVE, CURRENT_TIME,
-            MODERATION_STATUS, tag, page)
-        .stream()
-        .map(DtoMapper::mapToPostDto)
-        .collect(Collectors.toList());
-    postsResponse.setCount(count);
-    postsResponse.setPosts(postDtos);
-    return postsResponse;
-
+            MODERATION_STATUS, tag, page);
+    return getPostsWithModeOffsetLimit(posts);
   }
 
   @Override
@@ -199,24 +175,14 @@ public class PostsServiceImpl implements PostsService {
     return null;
   }
 
-  private PostsResponse getPostsWithModeOffsetLimit(Pageable page,
-      Comparator<PostDto> comparator) {
+  private PostsResponse getPostsWithModeOffsetLimit(Page<Post> posts) {
     PostsResponse postsResponse = new PostsResponse();
 
-    int count = postRepository.getAllByIsActiveAndTimeIsLessThanAndModerationStatus_Accepted(
-            IS_ACTIVE,
-            CURRENT_TIME, MODERATION_STATUS)
-        .size();
-    List<PostDto> postsDto = postRepository
-        .getAllByIsActiveAndTimeIsLessThanAndModerationStatusWithLimitAndOffset(
-            IS_ACTIVE, CURRENT_TIME,
-            MODERATION_STATUS, page
-        ).stream()
+    postsResponse.setCount((int) posts.getTotalElements());
+    postsResponse.setPosts(posts
+        .stream()
         .map(DtoMapper::mapToPostDto)
-        .sorted(comparator)
-        .collect(Collectors.toList());
-    postsResponse.setCount(count);
-    postsResponse.setPosts(postsDto);
+        .collect(Collectors.toList()));
     return postsResponse;
   }
 
@@ -310,51 +276,24 @@ public class PostsServiceImpl implements PostsService {
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
       Integer moderatorId) {
-    PostsResponse postsResponse = new PostsResponse();
-
-    Pageable page = PageRequest.of(offset, limit);
+    Page<Post> posts;
+    Pageable page = PageRequest.of((offset == 0 || offset < 0 ? 0 : (offset / 10)), limit);
     if (moderatorId == null) {
-      int count = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(IS_ACTIVE,
-          status, page).size();
-      List<PostDto> posts = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(
-              IS_ACTIVE, status, page)
-          .stream()
-          .map(DtoMapper::mapToPostDto)
-          .collect(Collectors.toList());
-      postsResponse.setCount(count);
-      postsResponse.setPosts(posts);
-      return postsResponse;
-    } else {
-      int count = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(IS_ACTIVE,
-          status,
-          moderatorId, page).size();
-
-      List<PostDto> posts = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(
-              IS_ACTIVE, status, moderatorId, page)
-          .stream()
-          .map(DtoMapper::mapToPostDto)
-          .collect(Collectors.toList());
-      postsResponse.setCount(count);
-      postsResponse.setPosts(posts);
-      return postsResponse;
+      posts = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(
+          IS_ACTIVE, status, page);
+      return getPostsWithModeOffsetLimit(posts);
     }
+    posts = postRepository.getAllByIsActiveAndModerationStatusAndModeratorId(
+        IS_ACTIVE, status, moderatorId, page);
+    return getPostsWithModeOffsetLimit(posts);
   }
 
   private PostsResponse getPostsWithStatusParams(byte isActive, int offset, int limit,
       String status, int authorId) {
-    PostsResponse postsResponse = new PostsResponse();
-
-    Pageable page = PageRequest.of(offset, limit);
-    int count = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(isActive, status,
-        authorId, page).size();
-    List<PostDto> myposts = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(
-            isActive, status, authorId, page)
-        .stream()
-        .map(DtoMapper::mapToPostDto)
-        .collect(Collectors.toList());
-    postsResponse.setCount(count);
-    postsResponse.setPosts(myposts);
-    return postsResponse;
+    Pageable page = PageRequest.of((offset == 0 || offset < 0 ? 0 : (offset / 10)), limit);
+    Page<Post> posts = postRepository.getAllByIsActiveAndModerationStatusAndAuthorIdIs(
+        isActive, status, authorId, page);
+    return getPostsWithModeOffsetLimit(posts);
   }
 
   private boolean hasErrors(ErrorDto errors) {

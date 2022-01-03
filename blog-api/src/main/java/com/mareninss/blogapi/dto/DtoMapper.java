@@ -46,7 +46,6 @@ public class DtoMapper {
     postDto.setTimestamp((post.getTime().getTime()) / 1000);
     postDto.setUser(userPostDto);
     postDto.setTitle(post.getTitle());
-    postDto.setTitle(post.getTitle());
     postDto.setAnnounce(getAnnounce(post.getText()));
     postDto.setLikeCount((int) countLike);
     postDto.setDislikeCount((int) contDislike);

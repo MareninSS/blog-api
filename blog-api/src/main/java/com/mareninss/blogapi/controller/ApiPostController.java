@@ -1,15 +1,12 @@
 package com.mareninss.blogapi.controller;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mareninss.blogapi.api.request.LikeDislikeRequest;
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
-
 import com.mareninss.blogapi.api.request.PostDataRequest;
 import com.mareninss.blogapi.api.response.CalendarCountPostResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.PostByIdResponse;
-
 import com.mareninss.blogapi.api.response.PostsResponse;
 import com.mareninss.blogapi.service.CalendarServiceImpl;
 import com.mareninss.blogapi.service.PostsServiceImpl;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,9 +41,9 @@ public class ApiPostController {
 
   @GetMapping("/post")
   public ResponseEntity<PostsResponse> getPosts(
-      @RequestParam(required = false, defaultValue = "0") int offset,
-      @RequestParam(required = false, defaultValue = "10") int limit,
-      @RequestParam(required = false, defaultValue = "recent") String mode) {
+      @RequestParam(required = false) int offset,
+      @RequestParam(required = false) int limit,
+      @RequestParam(required = false) String mode) {
     return ResponseEntity.ok(postsService.getPosts(offset, limit, mode));
   }
 
