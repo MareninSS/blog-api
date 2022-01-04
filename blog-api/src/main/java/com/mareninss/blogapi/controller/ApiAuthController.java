@@ -9,7 +9,7 @@ import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.api.response.LoginResponse;
-import com.mareninss.blogapi.service.AuthStatusServiceImpl;
+import com.mareninss.blogapi.service.service_impl.AuthStatusServiceImpl;
 import com.mareninss.blogapi.service.CaptchaService;
 import com.mareninss.blogapi.service.LoginService;
 import com.mareninss.blogapi.service.RegisterService;

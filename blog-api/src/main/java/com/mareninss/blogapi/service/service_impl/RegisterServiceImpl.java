@@ -1,4 +1,4 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.mareninss.blogapi.api.request.EditProfileRequest;
 import com.mareninss.blogapi.api.request.PasswordResetRequest;
@@ -10,6 +10,7 @@ import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.entity.CaptchaCode;
 import com.mareninss.blogapi.entity.User;
+import com.mareninss.blogapi.service.RegisterService;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

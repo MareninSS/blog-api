@@ -1,4 +1,4 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 
 import com.mareninss.blogapi.api.response.TagResponse;
@@ -9,6 +9,7 @@ import com.mareninss.blogapi.dto.TagDto;
 
 import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Tag;
+import com.mareninss.blogapi.service.TagService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;

@@ -1,10 +1,11 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.mareninss.blogapi.api.response.AuthStatusResponse;
 import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.entity.ModerationStatus;
+import com.mareninss.blogapi.service.AuthStatusService;
 import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

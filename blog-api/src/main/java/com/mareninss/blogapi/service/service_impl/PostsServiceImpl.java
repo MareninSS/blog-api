@@ -1,4 +1,4 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.mareninss.blogapi.api.request.LikeDislikeRequest;
 import com.mareninss.blogapi.api.request.ModerationPostRequest;
@@ -18,6 +18,7 @@ import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.PostVote;
 import com.mareninss.blogapi.entity.Tag;
 import com.mareninss.blogapi.entity.User;
+import com.mareninss.blogapi.service.PostsService;
 import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

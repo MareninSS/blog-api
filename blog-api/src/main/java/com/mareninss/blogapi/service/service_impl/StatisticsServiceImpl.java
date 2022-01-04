@@ -1,4 +1,4 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.mareninss.blogapi.api.response.StatisticsResponse;
 import com.mareninss.blogapi.dao.PostRepository;
@@ -7,6 +7,7 @@ import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.PostVote;
 import com.mareninss.blogapi.entity.User;
+import com.mareninss.blogapi.service.StatisticsService;
 import java.security.Principal;
 import java.util.Comparator;
 import java.util.List;

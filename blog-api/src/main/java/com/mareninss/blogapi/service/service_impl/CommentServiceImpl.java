@@ -1,13 +1,12 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.mareninss.blogapi.api.request.CommentRequest;
-import com.mareninss.blogapi.api.response.ErrorsResponse;
 import com.mareninss.blogapi.dao.CommentRepository;
 import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.UserRepository;
-import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.entity.Post;
 import com.mareninss.blogapi.entity.PostComment;
+import com.mareninss.blogapi.service.CommentService;
 import java.security.Principal;
 import java.util.Date;
 import java.util.HashMap;

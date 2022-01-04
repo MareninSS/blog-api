@@ -1,5 +1,6 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
+import com.mareninss.blogapi.service.FileStorageService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

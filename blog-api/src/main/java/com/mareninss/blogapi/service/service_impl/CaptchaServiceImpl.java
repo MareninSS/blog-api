@@ -1,10 +1,11 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.github.cage.Cage;
 import com.github.cage.image.Painter;
 import com.mareninss.blogapi.api.response.CaptchaResponse;
 import com.mareninss.blogapi.dao.CaptchaRepository;
 import com.mareninss.blogapi.entity.CaptchaCode;
+import com.mareninss.blogapi.service.CaptchaService;
 import java.util.Base64;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;

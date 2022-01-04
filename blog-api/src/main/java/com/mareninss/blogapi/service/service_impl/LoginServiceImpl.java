@@ -1,4 +1,4 @@
-package com.mareninss.blogapi.service;
+package com.mareninss.blogapi.service.service_impl;
 
 import com.mareninss.blogapi.api.request.LoginRequest;
 import com.mareninss.blogapi.api.response.LoginResponse;
@@ -6,6 +6,7 @@ import com.mareninss.blogapi.dao.PostRepository;
 import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.DtoMapper;
 import com.mareninss.blogapi.entity.ModerationStatus;
+import com.mareninss.blogapi.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
