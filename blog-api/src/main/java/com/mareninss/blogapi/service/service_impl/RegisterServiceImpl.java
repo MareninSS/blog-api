@@ -10,6 +10,7 @@ import com.mareninss.blogapi.dao.UserRepository;
 import com.mareninss.blogapi.dto.ErrorDto;
 import com.mareninss.blogapi.entity.CaptchaCode;
 import com.mareninss.blogapi.entity.User;
+import com.mareninss.blogapi.service.FileStorageService;
 import com.mareninss.blogapi.service.RegisterService;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,7 +23,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.Principal;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,9 +56,10 @@ public class RegisterServiceImpl implements RegisterService {
   @Autowired
   private JavaMailSender mailSender;
 
-//  private ErrorsResponse errorsResponse;
+  @Autowired
+  private FileStorageService fileStorageService;
 
-  private final Path root = Paths.get("upload");
+  private final Path root = Paths.get("src/main/resources/upload");
 
   @Value("${hostname.prefix}")
   private String hostName;
@@ -224,15 +225,16 @@ public class RegisterServiceImpl implements RegisterService {
       errorsResponse.setErrors(error);
       return errorsResponse;
     }
-    String path = null;
+    String fileName = null;
     try {
-      path = resizeFile(photo);
+      fileName = resizeFile(photo);
     } catch (IOException e) {
       e.printStackTrace();
     }
     BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     currentUser.setPassword(bCryptPasswordEncoder.encode(password));
-    currentUser.setPhoto(path);
+    String url = "/api/image/";
+    currentUser.setPhoto(url + fileName);
     userRepository.saveAndFlush(currentUser);
     errorsResponse.setResult(true);
     return errorsResponse;
@@ -262,14 +264,15 @@ public class RegisterServiceImpl implements RegisterService {
       return errorsResponse;
     }
 
-    String path = null;
+    String fileName = null;
     try {
-      path = resizeFile(photo);
+      fileName = resizeFile(photo);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    currentUser.setPhoto(path);
+    String url = "/api/image/";
+    currentUser.setPhoto(url + fileName);
     currentUser.setName(name);
     currentUser.setEmail(email);
     userRepository.saveAndFlush(currentUser);
@@ -290,7 +293,7 @@ public class RegisterServiceImpl implements RegisterService {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
           Files.delete(file);
-          return FileVisitResult.CONTINUE;
+          return FileVisitResult.TERMINATE;
         }
       });
     } catch (IOException e) {
@@ -306,13 +309,12 @@ public class RegisterServiceImpl implements RegisterService {
       throws IOException {
     final int WIDTH = 360;
     final int HEIGHT = 360;
-    Path path = root.resolve(Path.of("photos"));
+    String uuidFile = UUID.randomUUID() + "." + file.getOriginalFilename();
+    Path path = root.resolve(fileStorageService.createFolderName(uuidFile));
     Files.createDirectories(path);
-    String p = path.resolve(Objects.requireNonNull(file.getOriginalFilename())).toString();
     BufferedImage imageResized = Scalr.resize(ImageIO.read(file.getInputStream()), WIDTH, HEIGHT);
-    ImageIO.write(imageResized, "jpg", new File(p));
-    String replace = p.replace("\\", "/");
-    return "/" + replace;
+    ImageIO.write(imageResized, "jpg", new File(path.resolve(uuidFile).toString()));
+    return uuidFile;
   }
 
   @Override

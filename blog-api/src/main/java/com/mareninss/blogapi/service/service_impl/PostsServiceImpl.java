@@ -272,7 +272,10 @@ public class PostsServiceImpl implements PostsService {
   @Transactional
   public ErrorsResponse updatePost(int id, PostDataRequest dataRequest, Principal principal) {
     Optional<Post> post = postRepository.findById(id);
-    return post.map(value -> savePostById(dataRequest, principal, value)).orElse(null);
+    if (post.isPresent()) {
+      return savePostById(dataRequest, principal, post.get());
+    }
+    return null;
   }
 
   private PostsResponse getPostsByModerationStatus(int offset, int limit, String status,
@@ -355,6 +358,7 @@ public class PostsServiceImpl implements PostsService {
     return postDataResponse;
   }
 
+
   private ErrorsResponse savePostById(PostDataRequest dataRequest, Principal principal,
       Post postById) {
     ErrorsResponse postDataResponse = new ErrorsResponse();
@@ -365,24 +369,23 @@ public class PostsServiceImpl implements PostsService {
     } else {
       User currentUser = userRepository.findByEmail(principal.getName())
           .orElseThrow(() -> new UsernameNotFoundException(principal.getName()));
-      Post post = new Post();
-      post.setId(postById.getId());
-      post.setIsActive(dataRequest.getActive());
+
+      postById.setIsActive(dataRequest.getActive());
 
       if (currentUser.getIsModerator() != moderator) {
-        post.setModerationStatus(ModerationStatus.NEW);
+        postById.setModerationStatus(ModerationStatus.NEW);
       } else {
-        post.setModerationStatus(postById.getModerationStatus());
+        postById.setModerationStatus(postById.getModerationStatus());
       }
-      post.setModeratorId(null);
-      post.setAuthorId(currentUser.getId());
+      postById.setModeratorId(null);
+      postById.setAuthorId(currentUser.getId());
 
       long publishedTime = dataRequest.getTimestamp();
       long currentTime = new Date().getTime();
       if (publishedTime <= currentTime) {
-        post.setTime(new Date(currentTime));
+        postById.setTime(new Date(currentTime));
       }
-      post.setTime(new Date(publishedTime * 1000));
+      postById.setTime(new Date(publishedTime * 1000));
 
       List<Tag> tags = new ArrayList<>();
       dataRequest.getTags().forEach(tagRequest -> {
@@ -390,12 +393,12 @@ public class PostsServiceImpl implements PostsService {
         tag.setName(tagRequest);
         tags.add(tag);
       });
-      post.setTitle(dataRequest.getTitle());
-      post.setText(dataRequest.getText());
-      post.setViewCount(0);
-      post.setTags(tags);
+      postById.setTitle(dataRequest.getTitle());
+      postById.setText(dataRequest.getText());
+      postById.setViewCount(0);
+      postById.setTags(tags);
 
-      postRepository.saveAndFlush(post);
+      postRepository.saveAndFlush(postById);
 
       postDataResponse.setResult(true);
       postDataResponse.setErrors(null);
@@ -414,25 +417,17 @@ public class PostsServiceImpl implements PostsService {
       Optional<Post> post = postRepository.findById(request.getPostId());
 
       if (post.isPresent()) {
-        Post moderatedPost = new Post();
-        moderatedPost.setId(post.get().getId());
-        moderatedPost.setIsActive(post.get().getIsActive());
         switch (request.getDecision()) {
           case "accept":
-            moderatedPost.setModerationStatus(ModerationStatus.ACCEPTED);
-            moderatedPost.setModeratorId(currentUser.getId());
+            post.get().setModerationStatus(ModerationStatus.ACCEPTED);
+            post.get().setModeratorId(currentUser.getId());
             break;
           case "decline":
-            moderatedPost.setModerationStatus(ModerationStatus.DECLINED);
-            moderatedPost.setModeratorId(currentUser.getId());
+            post.get().setModerationStatus(ModerationStatus.DECLINED);
+            post.get().setModeratorId(currentUser.getId());
             break;
         }
-        moderatedPost.setAuthorId(post.get().getAuthorId());
-        moderatedPost.setTime(post.get().getTime());
-        moderatedPost.setTitle(post.get().getTitle());
-        moderatedPost.setText(post.get().getText());
-        moderatedPost.setViewCount(post.get().getViewCount());
-        postRepository.saveAndFlush(moderatedPost);
+        postRepository.saveAndFlush(post.get());
         result.put("result", true);
       } else {
         result.put("result", false);
