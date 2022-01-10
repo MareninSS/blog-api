@@ -42,9 +42,6 @@ blog:
 captcha:
   timeToDel: 60 # ! Формат времени для удаления captcha из БД в МИНУТАХ!
 
-
-
-
 hostname:
   prefix: http://localhost:8080
 
