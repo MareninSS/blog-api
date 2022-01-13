@@ -57,9 +57,9 @@ public class ApiPostController {
 
   @GetMapping("/calendar")
   public ResponseEntity<CalendarCountPostResponse> getNumberOfPostByYears(
-      @RequestParam(required = false) List<Integer> years) {
+      @RequestParam(required = false) Integer year) {
     CalendarCountPostResponse countPostResponse = calendarService.getNumberOfPostByYear(
-        years);
+        year);
     if (countPostResponse == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

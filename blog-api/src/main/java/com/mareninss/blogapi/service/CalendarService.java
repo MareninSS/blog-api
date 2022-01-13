@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface CalendarService {
 
-  CalendarCountPostResponse getNumberOfPostByYear(List<Integer> years);
+  CalendarCountPostResponse getNumberOfPostByYear(Integer year);
 }

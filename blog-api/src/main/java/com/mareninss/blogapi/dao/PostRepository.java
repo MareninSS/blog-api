@@ -6,6 +6,7 @@ import com.mareninss.blogapi.entity.Post;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -39,7 +40,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   List<Post> getAllByIsActiveAndTimeIsLessThanAndModerationStatus_AcceptedWhereYearsEqual(
       @Param(value = "isActive") Byte isActive, @Param(value = "time") Date time,
       @Param(value = "moderationStatus") String moderationStatus,
-      @Param("years") List<Integer> years);
+      @Param("years") Set<Integer> years);
 
 
   @Query(value = "SELECT * FROM posts "
