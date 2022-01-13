@@ -131,7 +131,6 @@ public class ApiPostController {
   }
 
   @PostMapping("/post/like")
-  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
   public ResponseEntity<Map<String, Boolean>> likePost(
       @RequestBody LikeDislikeRequest request,
       Principal principal) {
@@ -139,7 +138,6 @@ public class ApiPostController {
   }
 
   @PostMapping("/post/dislike")
-  @PreAuthorize("hasAnyAuthority('user:moderate','user:write')")
   public ResponseEntity<Map<String, Boolean>> dislikePost(
       @RequestBody LikeDislikeRequest request,
       Principal principal) {
