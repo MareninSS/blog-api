@@ -9,11 +9,13 @@ import com.mareninss.blogapi.entity.ModerationStatus;
 import com.mareninss.blogapi.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,11 +35,14 @@ public class LoginServiceImpl implements LoginService {
   @Override
   public LoginResponse checkAndAuth(LoginRequest loginRequest) {
     LoginResponse loginResponse = new LoginResponse();
-    Authentication auth = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-            loginRequest.getPassword()));
+    try {
+      Authentication auth = authenticationManager
+          .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+              loginRequest.getPassword()));
+
     SecurityContextHolder.getContext().setAuthentication(auth);
     User user = (User) auth.getPrincipal();
+
     com.mareninss.blogapi.entity.User currentUser = userRepository.findByEmail(user.getUsername())
         .orElseThrow(() -> new UsernameNotFoundException(
             user.getUsername()));
@@ -45,6 +50,9 @@ public class LoginServiceImpl implements LoginService {
         ModerationStatus.NEW, null).size();
     loginResponse.setResult(true);
     loginResponse.setUser(DtoMapper.mapToUserDto(currentUser, moderationCount));
+    } catch (BadCredentialsException e) {
+      System.out.println("BadCredentialsException  - Bad Credentials!");
+    }
     return loginResponse;
   }
 }
