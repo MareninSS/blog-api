@@ -62,5 +62,4 @@ git clone https://github.com/MareninSS/blog-api.git
 ## Acknowledgements
 
 * [for my brother]
-* [and my family]
 
