@@ -61,5 +61,5 @@ git clone https://github.com/MareninSS/blog-api.git
 
 ## Acknowledgements
 
-* [for my brother]
+* [to my brother]
 
