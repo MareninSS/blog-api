@@ -55,7 +55,7 @@ git clone https://github.com/MareninSS/blog-api.git
 2. Enter your API config in `application.yml`
 
 
-## Authors
+## Author
 
 * **Sergey Marenin** - *developer for people!* - [Sergey Marenin](https://github.com/MareninSS) 
 
